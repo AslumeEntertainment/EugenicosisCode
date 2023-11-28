@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "EugenicosisCode",
+	"Description": "Code for all functionalities of the game Eugenicosis",
+	"Category": "Other",
+	"CreatedBy": "2EZ_Entertainment",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "EugenicosisCode",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
