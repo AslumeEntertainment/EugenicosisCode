@@ -2,6 +2,17 @@
 
 
 #include "Characters/EGC_Character.h"
+//#include "Animation/AnimInstance.h"
+//#include "Camera/CameraComponent.h"
+//#include "Components/CapsuleComponent.h"
+//#include "Components/SkeletalMeshComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "InputActionValue.h"
+#include "Engine/LocalPlayer.h"
+
+DEFINE_LOG_CATEGORY(Log_EGC_Character);
 
 // Sets default values
 AEGC_Character::AEGC_Character()
@@ -15,8 +26,15 @@ AEGC_Character::AEGC_Character()
 void AEGC_Character::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
+
+void AEGC_Character::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	ToggleCameraShake(IdleCameraShake);
+}
+
+
 
 // Called every frame
 void AEGC_Character::Tick(float DeltaTime)
@@ -25,10 +43,81 @@ void AEGC_Character::Tick(float DeltaTime)
 
 }
 
+void AEGC_Character::Move(const FInputActionValue& Value)
+{
+	FVector2D MovementVector = Value.Get<FVector2D>();
+	AddMovementInput(GetActorForwardVector(), MovementVector.Y);
+	AddMovementInput(GetActorRightVector(), MovementVector.X);
+}
+
+void AEGC_Character::Look(const FInputActionValue& Value)
+{
+	FVector2D LookAxisVector = Value.Get<FVector2D>();
+	AddControllerYawInput(LookAxisVector.X);
+	AddControllerPitchInput(LookAxisVector.Y);
+}
+
+void AEGC_Character::ToggleRun(const FInputActionValue& Value)
+{
+	bool IsRunning = Value.Get<bool>();
+
+	UCharacterMovementComponent* Movement = GetCharacterMovement();
+
+	Movement->MaxWalkSpeed = IsRunning ? MaxSprintSpeed : MaxWalkSpeed;
+
+	if (bIsMoving == false)
+	{
+		return;
+	}
+
+	ToggleCameraShake(IsRunning ? RunCameraShake : WalkCameraShake);
+	ToggleCameraShake(IsRunning ? WalkCameraShake : RunCameraShake, false);
+	
+}
+
+void AEGC_Character::StartCameraMovement(const FInputActionValue& Value)
+{
+	bIsMoving = true;
+	ToggleCameraShake(IdleCameraShake, false);
+	ToggleCameraShake(GetCharacterMovement()->MaxWalkSpeed > 300 ? RunCameraShake : WalkCameraShake);
+	ToggleCameraShake(GetCharacterMovement()->MaxWalkSpeed > 300 ? WalkCameraShake : RunCameraShake, false);
+}
+
+void AEGC_Character::ClearCameraMovement(const FInputActionValue& Value)
+{
+	bIsMoving = false;
+	ToggleCameraShake(IdleCameraShake);
+	ToggleCameraShake(WalkCameraShake, false);
+	ToggleCameraShake(RunCameraShake, false);
+}
+
+void AEGC_Character::ToggleCameraShake(TSubclassOf<class UCameraShakeBase> CameraShake, bool OnOff)
+{
+	APlayerController* PC = Cast<APlayerController>(Controller);
+	if (IsValid(PC) == false)
+	{
+		UE_LOG(Log_EGC_Character, Error, TEXT("AEGC_Character::ActivateCameraShake IsValid(Controller) == false"));
+		return;
+	}
+	OnOff ? PC->ClientStartCameraShake(CameraShake) : PC->ClientStopCameraShake(CameraShake);
+}
+
 // Called to bind functionality to input
 void AEGC_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
+
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
+
+	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AEGC_Character::Move);
+	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Started, this, &AEGC_Character::StartCameraMovement);
+	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AEGC_Character::ClearCameraMovement);
+	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AEGC_Character::Look);
+	EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &AEGC_Character::ToggleRun);
+
+
 }
+
+
 

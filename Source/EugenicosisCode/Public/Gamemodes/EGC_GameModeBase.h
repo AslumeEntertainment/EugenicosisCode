@@ -6,6 +6,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "EGC_GameModeBase.generated.h"
 
+class AEGC_Character;
+
 /**
  * 
  */
@@ -14,4 +16,17 @@ class EUGENICOSISCODE_API AEGC_GameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 	
+protected:
+
+	virtual void BeginPlay() override;
+
+	UPROPERTY(EditAnywhere, Category = GameStart)
+	TSubclassOf<AEGC_Character> CharacterClass;
+
+	UPROPERTY(EditAnywhere, Category = GameStart)
+	FVector CharacterStartLocation;
+
+	UPROPERTY(EditAnywhere, Category = GameStart)
+	FRotator CharacterStartRotation;
+
 };
