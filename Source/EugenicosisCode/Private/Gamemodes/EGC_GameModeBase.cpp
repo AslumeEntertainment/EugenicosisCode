@@ -5,6 +5,7 @@
 
 #include "Controllers/EGC_PlayerController.h"
 #include "Characters/EGC_Character.h"
+#include "UI/HUDs/InGameHUD.h"
 
 #include "Kismet/GameplayStatics.h"
 
@@ -12,12 +13,12 @@ void AEGC_GameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	/*AInGameHUD* HUD = Cast<AInGameHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
+	AInGameHUD* HUD = Cast<AInGameHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
 	if (IsValid(HUD) == false)
 	{
 		UE_LOG(LogTemp, Error, TEXT("AEGC_GameModeBase::BeginPlay IsValid(HUD) == false"));
 		return;
-	}*/
+	}
 
 	UWorld* World = GetWorld();
 	if (IsValid(World) == false)

@@ -2,10 +2,6 @@
 
 
 #include "Characters/EGC_Character.h"
-//#include "Animation/AnimInstance.h"
-//#include "Camera/CameraComponent.h"
-//#include "Components/CapsuleComponent.h"
-//#include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -32,6 +28,8 @@ void AEGC_Character::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	ToggleCameraShake(IdleCameraShake);
+	OnEnergyRateChanged.ExecuteIfBound(1);
+	GetWorldTimerManager().SetTimer(EnergyTimerHandle, this, &AEGC_Character::UpdateEnergy, 0.5f, true, 0.01f);
 }
 
 
@@ -40,6 +38,22 @@ void AEGC_Character::PossessedBy(AController* NewController)
 void AEGC_Character::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+}
+
+void AEGC_Character::UpdateEnergy()
+{
+	CurrentEnergy += bIsRunning ? SprintEnergyDrainRate : EnergyRechargeRate;
+
+	CurrentEnergy = FMath::Clamp(CurrentEnergy, 0, MaxEnergy);
+
+	if ( (CurrentEnergy / MaxEnergy) > EnergyToBlurThreshold)
+	{
+		OnEnergyRateChanged.ExecuteIfBound(1);
+		return;
+	}
+
+	OnEnergyRateChanged.ExecuteIfBound(CurrentEnergy / (MaxEnergy * EnergyToBlurThreshold));
 
 }
 
@@ -59,19 +73,19 @@ void AEGC_Character::Look(const FInputActionValue& Value)
 
 void AEGC_Character::ToggleRun(const FInputActionValue& Value)
 {
-	bool IsRunning = Value.Get<bool>();
+	bIsRunning = Value.Get<bool>();
 
 	UCharacterMovementComponent* Movement = GetCharacterMovement();
 
-	Movement->MaxWalkSpeed = IsRunning ? MaxSprintSpeed : MaxWalkSpeed;
+	Movement->MaxWalkSpeed = bIsRunning ? MaxSprintSpeed : MaxWalkSpeed;
 
 	if (bIsMoving == false)
 	{
 		return;
 	}
 
-	ToggleCameraShake(IsRunning ? RunCameraShake : WalkCameraShake);
-	ToggleCameraShake(IsRunning ? WalkCameraShake : RunCameraShake, false);
+	ToggleCameraShake(bIsRunning ? RunCameraShake : WalkCameraShake);
+	ToggleCameraShake(bIsRunning ? WalkCameraShake : RunCameraShake, false);
 	
 }
 

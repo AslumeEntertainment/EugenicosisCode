@@ -15,6 +15,9 @@ struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(Log_EGC_Character, Log, All);
 
+UDELEGATE()
+DECLARE_DYNAMIC_DELEGATE_OneParam(FEnergyBlurSignature, float, Percentage);
+
 UCLASS()
 class EUGENICOSISCODE_API AEGC_Character : public ACharacter
 {
@@ -26,6 +29,9 @@ public:
 
 private:
 	bool bIsMoving = false;
+	bool bIsRunning = false;
+
+	FTimerHandle EnergyTimerHandle;
 
 protected:
 	// Called when the game starts or when spawned
@@ -54,10 +60,13 @@ protected:
 	float MaxEnergy = 600;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
-	float EnergyRechargeRate = 2;
+	float CurrentEnergy = 600;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
-	float SprintEnergyDrainRate = 1;
+	float EnergyRechargeRate = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
+	float SprintEnergyDrainRate = -2;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CameraMovement, meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
 	float EnergyToBlurThreshold = 0.5;
@@ -71,6 +80,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CameraMovement)
 	TSubclassOf<class UCameraShakeBase> RunCameraShake;
 
+	UFUNCTION()
+	void UpdateEnergy();
 
 	void Move(const FInputActionValue& Value);
 
@@ -90,5 +101,7 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	FEnergyBlurSignature OnEnergyRateChanged;
 
 };
