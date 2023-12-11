@@ -39,6 +39,7 @@ public class EugenicosisCode : ModuleRules
 				"Slate",
 				"SlateCore",
                 "EnhancedInput",
+				"UMG",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
