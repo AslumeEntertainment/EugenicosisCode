@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "EGC_PlayerController.generated.h"
 
+class UInputMappingContext;
+
 /**
  * 
  */
@@ -14,4 +16,13 @@ class EUGENICOSISCODE_API AEGC_PlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
+protected:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputMappingContext* InputMappingContext;
+
+protected:
+
+	virtual void OnPossess(APawn* InPawn) override;
+
 };
