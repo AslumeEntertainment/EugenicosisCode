@@ -7,8 +7,10 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
+#include "EugenicosisCode.h"
 
-DEFINE_LOG_CATEGORY(Log_EGC_Character);
+
+
 
 // Sets default values
 AEGC_Character::AEGC_Character()
@@ -110,7 +112,7 @@ void AEGC_Character::ToggleCameraShake(TSubclassOf<class UCameraShakeBase> Camer
 	APlayerController* PC = Cast<APlayerController>(Controller);
 	if (IsValid(PC) == false)
 	{
-		UE_LOG(Log_EGC_Character, Error, TEXT("AEGC_Character::ActivateCameraShake IsValid(Controller) == false"));
+		UE_LOG(LogCharacter, Error, TEXT("AEGC_Character::ActivateCameraShake IsValid(Controller) == false"));
 		return;
 	}
 	OnOff ? PC->ClientStartCameraShake(CameraShake) : PC->ClientStopCameraShake(CameraShake);

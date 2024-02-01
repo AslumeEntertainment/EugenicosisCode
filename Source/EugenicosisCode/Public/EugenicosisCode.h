@@ -3,7 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Logging/LogMacros.h"
 #include "Modules/ModuleManager.h"
+
+DECLARE_LOG_CATEGORY_EXTERN(LogSmartObjects, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogCharacter, Log, All);
+
 
 class FEugenicosisCodeModule : public IModuleInterface
 {

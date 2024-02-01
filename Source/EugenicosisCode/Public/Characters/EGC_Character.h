@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Logging/LogMacros.h"
 #include "EGC_Character.generated.h"
 
 class UInputComponent;
@@ -13,7 +12,7 @@ class UInputMappingContext;
 class UCameraShakeBase;
 struct FInputActionValue;
 
-DECLARE_LOG_CATEGORY_EXTERN(Log_EGC_Character, Log, All);
+
 
 UDELEGATE()
 DECLARE_DYNAMIC_DELEGATE_OneParam(FEnergyBlurSignature, float, Percentage);
