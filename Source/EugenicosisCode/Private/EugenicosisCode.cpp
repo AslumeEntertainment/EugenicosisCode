@@ -4,6 +4,9 @@
 
 #define LOCTEXT_NAMESPACE "FEugenicosisCodeModule"
 
+DEFINE_LOG_CATEGORY(LogSmartObjects);
+DEFINE_LOG_CATEGORY(LogCharacter);
+
 void FEugenicosisCodeModule::StartupModule()
 {
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
