@@ -7,6 +7,8 @@
 #include "SmartObjectActor.generated.h"
 
 class USmartObjectComponent;
+struct FSmartObjectSlotHandle;
+
 
 UCLASS()
 class EUGENICOSISCODE_API ASmartObjectActor : public AActor
@@ -21,12 +23,22 @@ protected:
 	UPROPERTY(EditAnywhere)
 	USmartObjectComponent* SmartObject;
 
+
+
 protected:
 	// Called when the game starts or when spawnd
 	virtual void BeginPlay() override;
+
+	virtual FSmartObjectSlotHandle GetProperSlotForAgent(AActor* Agent);
+
+	//void OccupySlot(FSmartObjectSlotHandle* ClaimHandle);
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+
+	virtual void UseSmartObject(AActor* Agent);
+
+	void ReleaseSmartObjectSlot();
 };

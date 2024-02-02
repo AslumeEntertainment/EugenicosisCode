@@ -9,19 +9,27 @@
 
 class UNavLinkDefinition;
 class UNavLinkCustomComponent;
+class ASmartObjectActor;
 
 UCLASS()
 class EUGENICOSISCODE_API ASmartNavLinkBase : public ANavLinkProxy
 {
     GENERATED_BODY()
 
+
+
 public:
 
-    ASmartNavLinkBase(const FObjectInitializer& ObjectInitializer);
+    ASmartNavLinkBase();
+
 
 protected:
     UPROPERTY(EditAnywhere)
-    AActor* Actor;
+    ASmartObjectActor* SmartObject;
+
+protected:
+    UFUNCTION()
+    virtual void ReceiveLinkReached(AActor* MovingActor, const FVector& DestinationPoint);
 
 public:
     void BeginPlay() override;
