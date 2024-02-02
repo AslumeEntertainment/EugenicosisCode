@@ -41,8 +41,9 @@ public class EugenicosisCode : ModuleRules
                 "EnhancedInput",
 				"UMG",
                 "SmartObjectsModule", 
-				"GameplayBehaviorsModule", 
-				"NavigationSystem",
+				"GameplayBehaviorsModule",
+                "GameplayBehaviorSmartObjectsModule",
+                "NavigationSystem",
 				"AIModule"
 				// ... add private dependencies that you statically link with here ...	
 			}
