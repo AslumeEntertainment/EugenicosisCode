@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "SmartObjectRuntime.h"
 #include "SmartObjectActor.generated.h"
 
 class USmartObjectComponent;
+class UGameplayBehavior;
 struct FSmartObjectSlotHandle;
+//struct FSmartObjectClaimHandle;
 
 
 UCLASS()
@@ -22,6 +25,9 @@ public:
 protected:
 	UPROPERTY(EditAnywhere)
 	USmartObjectComponent* SmartObject;
+
+	UPROPERTY(EditAnywhere)
+	TMap<AActor*, FSmartObjectClaimHandle> Users;
 
 
 
@@ -40,5 +46,5 @@ public:
 
 	virtual void UseSmartObject(AActor* Agent);
 
-	void ReleaseSmartObjectSlot();
+	void ReleaseSmartObjectSlot(UGameplayBehavior& Behavior, AActor& Avatar, const bool bInterrupted);
 };

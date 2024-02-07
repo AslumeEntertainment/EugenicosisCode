@@ -5,6 +5,7 @@
 #include "SmartObjectSubsystem.h"
 #include "SmartObjectComponent.h"
 #include "SmartObjectDefinition.h"
+#include "SmartObjectRuntime.h"
 #include "GameplayBehaviorSmartObjectBehaviorDefinition.h"
 #include "GameplayBehavior.h"
 #include "GameplayBehaviorConfig.h"
@@ -81,28 +82,55 @@ void ASmartObjectActor::UseSmartObject(AActor* Agent)
 		UE_LOG(LogSmartObjects, Warning, TEXT("ASmartObjectActor::UseSmartObjectSlot   Claim.IsValid() == false"));
 		return;
 	}
-	//UE_LOG(LogTemp, Error, TEXT("State: %s"), *(UEnum::GetValueAsString(SOS->GetSlotState(Slot))));
-	//UE_LOG(LogTemp, Error, TEXT("%s"), *((SOS->MarkSlotAsOccupied(Claim, UGameplayBehaviorSmartObjectBehaviorDefinition::StaticClass()))->GetClass()->GetName()));
-	//UE_LOG(LogTemp, Error, TEXT("State: %s"), *(UEnum::GetValueAsString(SOS->GetSlotState(Slot))));
-
 
 	const UGameplayBehaviorSmartObjectBehaviorDefinition* GameplayBehaviorSmartObjectBehaviorDefinition = Cast<UGameplayBehaviorSmartObjectBehaviorDefinition>(SOS->MarkSlotAsOccupied(Claim, UGameplayBehaviorSmartObjectBehaviorDefinition::StaticClass()));
-	if (!(GameplayBehaviorSmartObjectBehaviorDefinition))
+	if (IsValid(GameplayBehaviorSmartObjectBehaviorDefinition) == false)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("3"));
+		UE_LOG(LogSmartObjects, Error, TEXT("ASmartObjectActor::UseSmartObjectSlot  IsValid(GameplayBehaviorSmartObjectBehaviorDefinition) == false"));
 		return;
 	}
 	UGameplayBehavior* Behavior = GameplayBehaviorSmartObjectBehaviorDefinition->GameplayBehaviorConfig.Get()->GetBehavior(*GetWorld());
-	if (!(Behavior))
+	if (IsValid(Behavior) == false)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("4"));
+		UE_LOG(LogSmartObjects, Error, TEXT("ASmartObjectActor::UseSmartObjectSlot  IsValid(Behavior) == false"));
 		return;
 	}
+	Users.Add(Agent, Claim);
+	Behavior->GetOnBehaviorFinishedDelegate().AddUObject(this, &ASmartObjectActor::ReleaseSmartObjectSlot);
 	bool bBehaviorTriggerSuccessful = Behavior->Trigger(*Agent, GameplayBehaviorSmartObjectBehaviorDefinition->GameplayBehaviorConfig.Get(), this);
+
+	if (bBehaviorTriggerSuccessful == false)
+	{
+		UE_LOG(LogSmartObjects, Warning, TEXT("ASmartObjectActor::UseSmartObjectSlot  bBehaviorTriggerSuccessful == false"));
+		return;
+	}
 }
 
-void ASmartObjectActor::ReleaseSmartObjectSlot()
+void ASmartObjectActor::ReleaseSmartObjectSlot( UGameplayBehavior& Behavior, AActor& Avatar, const bool bInterrupted)
 {
+	FSmartObjectClaimHandle* ClaimPtr = Users.Find(&Avatar);
+	if (ClaimPtr == nullptr) 
+	{
+		UE_LOG(LogSmartObjects, Error, TEXT("ASmartObjectActor::ReleaseSmartObjectSlot  ClaimPtr == nullptr"));
+		return;
+	}
+	UWorld* World = GetWorld();
+	if (IsValid(World) == false)
+	{
+		UE_LOG(LogSmartObjects, Error, TEXT("ASmartObjectActor::ReleaseSmartObjectSlot   IsValid(World) == false"));
+		return;
+	}
+	USmartObjectSubsystem* SOS = USmartObjectSubsystem::GetCurrent(World);
+	if (IsValid(SOS) == false)
+	{
+		UE_LOG(LogSmartObjects, Error, TEXT("ASmartObjectActor::ReleaseSmartObjectSlot   IsValid(SOS) == false"));
+		return;
+	}
+	SOS->MarkSlotAsFree(*ClaimPtr);
+	Behavior.GetOnBehaviorFinishedDelegate().RemoveAll(this);
+	Users.Remove(&Avatar);
+
+	
 }
 
 
