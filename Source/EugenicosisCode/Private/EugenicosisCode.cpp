@@ -6,6 +6,7 @@
 
 DEFINE_LOG_CATEGORY(LogSmartObjects);
 DEFINE_LOG_CATEGORY(LogCharacter);
+DEFINE_LOG_CATEGORY(LogCinematics);
 
 void FEugenicosisCodeModule::StartupModule()
 {

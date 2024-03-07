@@ -44,7 +44,9 @@ public class EugenicosisCode : ModuleRules
 				"GameplayBehaviorsModule",
                 "GameplayBehaviorSmartObjectsModule",
                 "NavigationSystem",
-				"AIModule"
+				"AIModule",
+				"LevelSequence",
+				"MovieScene"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
