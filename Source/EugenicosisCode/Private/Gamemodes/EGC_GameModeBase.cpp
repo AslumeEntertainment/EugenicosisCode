@@ -45,5 +45,21 @@ void AEGC_GameModeBase::BeginPlay()
 		return;
 	}
 
+	Character->PauseNotifyDelegate.AddDynamic(this, &AEGC_GameModeBase::PauseGame);
+
 	PlayerController->Possess(Character);
+}
+
+void AEGC_GameModeBase::PauseGame()
+{
+	bIsPaused = !bIsPaused;
+
+	AInGameHUD* HUD = Cast<AInGameHUD>(UGameplayStatics::GetPlayerController(this, 0)->GetHUD());
+	if (IsValid(HUD) == false)
+	{
+		UE_LOG(LogTemp, Error, TEXT("AEGC_GameModeBase::BeginPlay IsValid(HUD) == false"));
+		return;
+	}
+	
+	HUD->TogglePauseMenu(bIsPaused);
 }
