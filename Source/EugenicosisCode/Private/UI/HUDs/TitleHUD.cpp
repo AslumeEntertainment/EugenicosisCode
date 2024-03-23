@@ -17,8 +17,10 @@ void ATitleHUD::BeginPlay()
 		return;
 	}
 
-	PlayerOwner->SetInputMode(FInputModeUIOnly());
-	PlayerOwner->bShowMouseCursor = true;
+	if (PlayerOwner) {
+		PlayerOwner->SetInputMode(FInputModeUIOnly());
+		PlayerOwner->bShowMouseCursor = true;
+	}
 
 	TitleMenuWidget = CreateWidget<UTitleMenu>(UGameplayStatics::GetGameInstance(GetWorld()), TitleMenuWidgetClass);
 

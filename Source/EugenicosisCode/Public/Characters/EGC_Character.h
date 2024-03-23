@@ -12,10 +12,10 @@ class UInputMappingContext;
 class UCameraShakeBase;
 struct FInputActionValue;
 
-
-
 UDELEGATE()
 DECLARE_DYNAMIC_DELEGATE_OneParam(FEnergyBlurSignature, float, Percentage);
+UDELEGATE()
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPauseNotifySignature);
 
 UCLASS()
 class EUGENICOSISCODE_API AEGC_Character : public ACharacter
@@ -48,6 +48,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	class UInputAction* LookAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* PauseAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
 	float MaxSprintSpeed = 600;
@@ -88,6 +91,8 @@ protected:
 
 	void ToggleRun(const FInputActionValue& Value);
 
+	void TogglePause(const FInputActionValue& Value);
+
 	void StartCameraMovement(const FInputActionValue& Value);
 
 	void ClearCameraMovement(const FInputActionValue& Value);
@@ -102,5 +107,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	FEnergyBlurSignature OnEnergyRateChanged;
+	FPauseNotifySignature PauseNotifyDelegate;
 
 };

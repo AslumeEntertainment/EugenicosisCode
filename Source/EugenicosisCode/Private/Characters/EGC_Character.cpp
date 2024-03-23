@@ -91,6 +91,11 @@ void AEGC_Character::ToggleRun(const FInputActionValue& Value)
 	
 }
 
+void AEGC_Character::TogglePause(const FInputActionValue& Value)
+{
+	PauseNotifyDelegate.Broadcast();
+}
+
 void AEGC_Character::StartCameraMovement(const FInputActionValue& Value)
 {
 	bIsMoving = true;
@@ -131,7 +136,7 @@ void AEGC_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AEGC_Character::ClearCameraMovement);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AEGC_Character::Look);
 	EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &AEGC_Character::ToggleRun);
-
+	EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Triggered, this, &AEGC_Character::TogglePause);
 
 }
 

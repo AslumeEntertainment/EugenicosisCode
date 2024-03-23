@@ -8,9 +8,6 @@
 
 class AEGC_Character;
 
-/**
- * 
- */
 UCLASS()
 class EUGENICOSISCODE_API AEGC_GameModeBase : public AGameModeBase
 {
@@ -20,6 +17,8 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	bool bIsPaused = false;
+
 	UPROPERTY(EditAnywhere, Category = GameStart)
 	TSubclassOf<AEGC_Character> CharacterClass;
 
@@ -28,5 +27,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = GameStart)
 	FRotator CharacterStartRotation;
+
+public:
+
+	UFUNCTION()
+	void PauseGame();
 
 };

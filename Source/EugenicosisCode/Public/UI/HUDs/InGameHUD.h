@@ -7,6 +7,7 @@
 #include "InGameHUD.generated.h"
 
 class UOverlayWidgetBase;
+class UPauseMenuWidget;
 
 UCLASS()
 class EUGENICOSISCODE_API AInGameHUD : public AHUD
@@ -19,17 +20,29 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UOverlayWidgetBase> OverlayWidgetClass;
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UPauseMenuWidget> PauseMenuWidgetClass;
+
 	UPROPERTY()
 	UOverlayWidgetBase* OverlayWidget;
+
+	UPROPERTY()
+	UPauseMenuWidget* PauseMenuWidget;
 
 	void ClearWidgets();
 
 	void ShowOverlayWidget();
 
+	UFUNCTION()
+	void ShowPauseMenu();
+
 public:
 
 	UFUNCTION()
 	void SetOverlayBlur(float Percentage);
+
+	UFUNCTION()
+	void TogglePauseMenu(bool bIsPaused);
 
 };
 
