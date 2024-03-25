@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "SettingsMenuWidget.generated.h"
+#include "GameProgressMenu.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class EUGENICOSISCODE_API USettingsMenuWidget : public UUserWidget
+class EUGENICOSISCODE_API UGameProgressMenu : public UUserWidget
 {
 	GENERATED_BODY()
 	

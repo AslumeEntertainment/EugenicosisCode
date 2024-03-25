@@ -5,7 +5,7 @@
 	"FriendlyName": "EugenicosisCode",
 	"Description": "Code for all functionalities of the game Eugenicosis",
 	"Category": "Other",
-	"CreatedBy": "2EZ_Entertainment",
+	"CreatedBy": "Aslume_Entertainment",
 	"CreatedByURL": "",
 	"DocsURL": "",
 	"MarketplaceURL": "",
@@ -19,6 +19,24 @@
 			"Name": "EugenicosisCode",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "EnhancedInput",
+			"Enabled": true
+		},
+		{
+			"Name": "SmartObjects",
+			"Enabled": true
+		},
+		{
+			"Name": "GameplayBehaviors",
+			"Enabled": true
+		},
+		{
+			"Name": "GameplayBehaviorSmartObjects",
+			"Enabled": true
 		}
 	]
 }

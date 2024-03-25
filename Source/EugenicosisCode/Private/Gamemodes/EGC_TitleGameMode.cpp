@@ -16,7 +16,8 @@ void AEGC_TitleGameMode::BeginPlay()
 void AEGC_TitleGameMode::SwitchCamera(FName CameraTag)
 {
 	APlayerController* PlayerController = Cast<APlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	if (!IsValid(PlayerController)) {
+	if (!IsValid(PlayerController)) 
+	{
 		return;
 	}
 
@@ -36,12 +37,21 @@ void AEGC_TitleGameMode::SwitchCamera(FName CameraTag)
 
 void AEGC_TitleGameMode::StartGame()
 {
+	UWorld* World = GetWorld();
+	if (IsValid(World) == false)
+	{
+		UE_LOG(LogTemp, Error, TEXT("AEGC_GameModeBase::BeginPlay IsValid(World) == false"));
+		return;
+	}
+
+	UGameplayStatics::OpenLevel(World, GameplayLevelName);
 }
 
 void AEGC_TitleGameMode::QuitGame()
 {
 	APlayerController* PlayerController = Cast<APlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	if (!IsValid(PlayerController)) {
+	if (!IsValid(PlayerController)) 
+	{
 		return;
 	}
 

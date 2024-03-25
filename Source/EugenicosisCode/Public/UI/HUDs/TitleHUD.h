@@ -7,6 +7,7 @@
 #include "TitleHUD.generated.h"
 
 class UTitleMenu;
+class USettingsMenu;
 
 UCLASS()
 class EUGENICOSISCODE_API ATitleHUD : public AHUD
@@ -17,14 +18,23 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<UTitleMenu> TitleMenuWidgetClass;
+	TSubclassOf<UTitleMenu> TitleMenuClass;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<USettingsMenu> SettingsMenuClass;
 
 	UPROPERTY()
-	UTitleMenu* TitleMenuWidget;
+	UTitleMenu* TitleMenu;
+
+	UPROPERTY()
+	USettingsMenu* SettingsMenu;
 
 	void ClearWidgets();
 
 	UFUNCTION()
 	void ShowTitleMenu();
+
+	UFUNCTION()
+	void ShowSettingsMenu();
 	
 };

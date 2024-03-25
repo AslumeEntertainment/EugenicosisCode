@@ -7,24 +7,33 @@
 
 #include "Gamemodes/EGC_TitleGameMode.h"
 #include "UI/Widgets/Game/TitleMenu.h"
+#include "UI/Widgets/Game/SettingsMenu.h"
 
 void ATitleHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
 	AEGC_TitleGameMode* GameMode = Cast<AEGC_TitleGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (!IsValid(GameMode)) {
+	if (!IsValid(GameMode)) 
+	{
+		UE_LOG(LogTemp, Error, TEXT("ATitleHUD::BeginPlay IsValid(GameMode) == false"));
 		return;
 	}
 
-	if (PlayerOwner) {
+	if (PlayerOwner) 
+	{
 		PlayerOwner->SetInputMode(FInputModeUIOnly());
 		PlayerOwner->bShowMouseCursor = true;
 	}
 
-	TitleMenuWidget = CreateWidget<UTitleMenu>(UGameplayStatics::GetGameInstance(GetWorld()), TitleMenuWidgetClass);
+	TitleMenu = CreateWidget<UTitleMenu>(UGameplayStatics::GetGameInstance(GetWorld()), TitleMenuClass);
+	SettingsMenu = CreateWidget<USettingsMenu>(UGameplayStatics::GetGameInstance(GetWorld()), SettingsMenuClass);
 
-	TitleMenuWidget->QuitClicked.AddDynamic(GameMode, &AEGC_TitleGameMode::QuitGame);
+	TitleMenu->NewGameClicked.AddDynamic(GameMode, &AEGC_TitleGameMode::StartGame);
+	TitleMenu->OptionsClicked.AddDynamic(this, &ATitleHUD::ShowSettingsMenu);
+	TitleMenu->QuitClicked.AddDynamic(GameMode, &AEGC_TitleGameMode::QuitGame);
+
+	SettingsMenu->BackClicked.AddDynamic(this, &ATitleHUD::ShowTitleMenu);
 
 	ShowTitleMenu();
 }
@@ -38,8 +47,22 @@ void ATitleHUD::ShowTitleMenu()
 {
 	ClearWidgets();
 
-	if (PlayerOwner && TitleMenuWidget)
+	if (!PlayerOwner || !TitleMenu)
 	{
-		TitleMenuWidget->AddToViewport();
+		return;
 	}
+
+	TitleMenu->AddToViewport();
+}
+
+void ATitleHUD::ShowSettingsMenu()
+{
+	ClearWidgets();
+
+	if (!PlayerOwner || !SettingsMenu)
+	{
+		return;
+	}
+
+	SettingsMenu->AddToViewport();
 }

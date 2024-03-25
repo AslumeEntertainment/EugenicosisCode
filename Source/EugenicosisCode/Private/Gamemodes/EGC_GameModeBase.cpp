@@ -63,3 +63,26 @@ void AEGC_GameModeBase::PauseGame()
 	
 	HUD->TogglePauseMenu(bIsPaused);
 }
+
+void AEGC_GameModeBase::ReturnToTitle()
+{
+	UWorld* World = GetWorld();
+	if (IsValid(World) == false)
+	{
+		UE_LOG(LogTemp, Error, TEXT("AEGC_GameModeBase::BeginPlay IsValid(World) == false"));
+		return;
+	}
+
+	UGameplayStatics::OpenLevel(World, TitleMenuLevelName);
+}
+
+void AEGC_GameModeBase::QuitGame()
+{
+	APlayerController* PlayerController = Cast<APlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (!IsValid(PlayerController))
+	{
+		return;
+	}
+
+	PlayerController->ConsoleCommand("quit");
+}
