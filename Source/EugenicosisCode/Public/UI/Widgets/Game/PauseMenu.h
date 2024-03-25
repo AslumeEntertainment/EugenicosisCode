@@ -5,11 +5,12 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "ButtonDelegates.h"
-#include "PauseMenuWidget.generated.h"
+#include "PauseMenu.generated.h"
 
 class UButton;
+
 UCLASS()
-class EUGENICOSISCODE_API UPauseMenuWidget : public UUserWidget
+class EUGENICOSISCODE_API UPauseMenu : public UUserWidget
 {
 	GENERATED_BODY()
 	

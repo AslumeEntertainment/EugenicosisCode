@@ -16,6 +16,9 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditDefaultsOnly)
+	FName GameplayLevelName = FName("Residence");
+
 	UPROPERTY(EditAnywhere)
 	FName DefaultCameraTag = FName("CamAct1");
 

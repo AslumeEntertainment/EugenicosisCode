@@ -5,21 +5,37 @@
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 
+#include "Gamemodes/EGC_GameModeBase.h"
 #include "UI/Widgets/Game/OverlayWidgetBase.h"
-#include "UI/Widgets/Game/PauseMenuWidget.h"
+#include "UI/Widgets/Game/PauseMenu.h"
+#include "UI/Widgets/Game/SettingsMenu.h"
 
 void AInGameHUD::BeginPlay()
 {
-	if (PlayerOwner) 
+	Super::BeginPlay();
+
+	if (PlayerOwner)
 	{
 		PlayerOwner->SetInputMode(FInputModeGameOnly());
 		PlayerOwner->bShowMouseCursor = false;
 	}
 
-	Super::BeginPlay();
+	AEGC_GameModeBase* GameMode = Cast<AEGC_GameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (!IsValid(GameMode))
+	{
+		UE_LOG(LogTemp, Error, TEXT("AInGameHUD::BeginPlay IsValid(GameMode) == false"));
+		return;
+	}
 
 	OverlayWidget = CreateWidget<UOverlayWidgetBase>(UGameplayStatics::GetGameInstance(GetWorld()), OverlayWidgetClass);
-	PauseMenuWidget = CreateWidget<UPauseMenuWidget>(UGameplayStatics::GetGameInstance(GetWorld()), PauseMenuWidgetClass);
+	PauseMenu = CreateWidget<UPauseMenu>(UGameplayStatics::GetGameInstance(GetWorld()), PauseMenuClass);
+	SettingsMenu = CreateWidget<USettingsMenu>(UGameplayStatics::GetGameInstance(GetWorld()), SettingsMenuClass);
+
+	PauseMenu->OptionsClicked.AddDynamic(this, &AInGameHUD::ShowSettingsMenu);
+	PauseMenu->MainMenuClicked.AddDynamic(GameMode, &AEGC_GameModeBase::ReturnToTitle);
+	PauseMenu->ExitClicked.AddDynamic(GameMode, &AEGC_GameModeBase::QuitGame);
+
+	SettingsMenu->BackClicked.AddDynamic(this, &AInGameHUD::ShowPauseMenu);
 
 	ShowOverlayWidget();
 }
@@ -53,13 +69,30 @@ void AInGameHUD::ShowPauseMenu()
 {
 	ClearWidgets();
 
-	if (PlayerOwner) 
+	if (!PlayerOwner || !PauseMenu) 
 	{
-		PauseMenuWidget->AddToViewport();
-		PlayerOwner->SetPause(true);
-		PlayerOwner->SetInputMode(FInputModeGameAndUI());
-		PlayerOwner->bShowMouseCursor = true;
+		return;
 	}
+
+	PauseMenu->AddToViewport();
+	PlayerOwner->SetPause(true);
+	PlayerOwner->SetInputMode(FInputModeGameAndUI());
+	PlayerOwner->bShowMouseCursor = true;
+}
+
+void AInGameHUD::ShowSettingsMenu()
+{
+	ClearWidgets();
+
+	if (!PlayerOwner || !SettingsMenu)
+	{
+		return;
+	}
+
+	SettingsMenu->AddToViewport();
+	PlayerOwner->SetPause(true);
+	PlayerOwner->SetInputMode(FInputModeUIOnly());
+	PlayerOwner->bShowMouseCursor = true;
 }
 
 void AInGameHUD::SetOverlayBlur(float Percentage)

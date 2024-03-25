@@ -19,6 +19,9 @@ protected:
 
 	bool bIsPaused = false;
 
+	UPROPERTY(EditDefaultsOnly)
+	FName TitleMenuLevelName = FName("FirstPersonMap");
+
 	UPROPERTY(EditAnywhere, Category = GameStart)
 	TSubclassOf<AEGC_Character> CharacterClass;
 
@@ -32,5 +35,11 @@ public:
 
 	UFUNCTION()
 	void PauseGame();
+
+	UFUNCTION()
+	void ReturnToTitle();
+
+	UFUNCTION()
+	void QuitGame();
 
 };
