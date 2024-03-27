@@ -60,7 +60,6 @@ void AInGameHUD::ShowOverlayWidget()
 	}
 
 	OverlayWidget->AddToViewport();
-	PlayerOwner->SetPause(false);
 	PlayerOwner->bShowMouseCursor = false;
 	PlayerOwner->SetInputMode(FInputModeGameOnly());
 }
@@ -75,7 +74,6 @@ void AInGameHUD::ShowPauseMenu()
 	}
 
 	PauseMenu->AddToViewport();
-	PlayerOwner->SetPause(true);
 	PlayerOwner->SetInputMode(FInputModeGameAndUI());
 	PlayerOwner->bShowMouseCursor = true;
 }
@@ -90,7 +88,6 @@ void AInGameHUD::ShowSettingsMenu()
 	}
 
 	SettingsMenu->AddToViewport();
-	PlayerOwner->SetPause(true);
 	PlayerOwner->SetInputMode(FInputModeUIOnly());
 	PlayerOwner->bShowMouseCursor = true;
 }
