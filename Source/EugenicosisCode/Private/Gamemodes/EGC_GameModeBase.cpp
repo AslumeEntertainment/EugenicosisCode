@@ -64,6 +64,11 @@ void AEGC_GameModeBase::PauseGame()
 	HUD->TogglePauseMenu(bIsPaused);
 }
 
+bool AEGC_GameModeBase::bIsGamePaused()
+{
+	return bIsPaused;
+}
+
 void AEGC_GameModeBase::ReturnToTitle()
 {
 	UWorld* World = GetWorld();

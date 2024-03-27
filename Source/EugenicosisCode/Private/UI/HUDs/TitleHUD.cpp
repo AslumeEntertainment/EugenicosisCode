@@ -7,6 +7,9 @@
 
 #include "Gamemodes/EGC_TitleGameMode.h"
 #include "UI/Widgets/Game/TitleMenu.h"
+#include "UI/Widgets/Game/GameProgressMenu.h"
+#include "UI/Widgets/Game/GameProgressInfoWidget.h"
+#include "UI/Widgets/Game/GameProgressEntryIcon.h"
 #include "UI/Widgets/Game/SettingsMenu.h"
 
 void ATitleHUD::BeginPlay()
@@ -27,13 +30,26 @@ void ATitleHUD::BeginPlay()
 	}
 
 	TitleMenu = CreateWidget<UTitleMenu>(UGameplayStatics::GetGameInstance(GetWorld()), TitleMenuClass);
+	GameProgressMenu = CreateWidget<UGameProgressMenu>(UGameplayStatics::GetGameInstance(GetWorld()), GameProgressMenuClass);
+	GameProgressInfoWidget = CreateWidget<UGameProgressInfoWidget>(UGameplayStatics::GetGameInstance(GetWorld()), GameProgressInfoWidgetClass);
 	SettingsMenu = CreateWidget<USettingsMenu>(UGameplayStatics::GetGameInstance(GetWorld()), SettingsMenuClass);
 
+	TitleMenu->ContinueClicked.AddDynamic(this, &ATitleHUD::ShowGameProgressMenu);
 	TitleMenu->NewGameClicked.AddDynamic(GameMode, &AEGC_TitleGameMode::StartGame);
 	TitleMenu->OptionsClicked.AddDynamic(this, &ATitleHUD::ShowSettingsMenu);
 	TitleMenu->QuitClicked.AddDynamic(GameMode, &AEGC_TitleGameMode::QuitGame);
 
+	GameProgressMenu->BackClicked.AddDynamic(this, &ATitleHUD::ShowTitleMenu);
 	SettingsMenu->BackClicked.AddDynamic(this, &ATitleHUD::ShowTitleMenu);
+
+	GameProgressInfoWidget->BeforeCutsceneClicked.AddDynamic(GameMode, &AEGC_TitleGameMode::StartGame);
+	GameProgressInfoWidget->AfterCutsceneClicked.AddDynamic(GameMode, &AEGC_TitleGameMode::StartGame);
+
+	TArray<UWidget*> GameProgressEntries = GameProgressMenu->GetEntryIcons();
+	for (UWidget* Icon : GameProgressEntries)
+	{
+		Cast<UGameProgressEntryIcon>(Icon)->IconClicked.AddDynamic(this, &ATitleHUD::ShowGameProgressInfoWidget);
+	}
 
 	ShowTitleMenu();
 }
@@ -53,6 +69,29 @@ void ATitleHUD::ShowTitleMenu()
 	}
 
 	TitleMenu->AddToViewport();
+}
+
+void ATitleHUD::ShowGameProgressMenu()
+{
+	ClearWidgets();
+
+	if (!PlayerOwner || !GameProgressMenu)
+	{
+		return;
+	}
+
+	GameProgressMenu->AddToViewport();
+}
+
+void ATitleHUD::ShowGameProgressInfoWidget()
+{
+	if (!PlayerOwner || !GameProgressInfoWidget)
+	{
+		return;
+	}
+
+	GameProgressInfoWidget->RemoveFromViewport();
+	GameProgressInfoWidget->AddToViewport();
 }
 
 void ATitleHUD::ShowSettingsMenu()

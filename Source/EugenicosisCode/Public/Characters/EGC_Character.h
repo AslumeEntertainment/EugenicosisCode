@@ -29,6 +29,7 @@ public:
 private:
 	bool bIsMoving = false;
 	bool bIsRunning = false;
+	bool bIsPaused = false;
 
 	FTimerHandle EnergyTimerHandle;
 

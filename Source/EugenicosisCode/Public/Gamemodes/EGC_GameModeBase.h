@@ -31,10 +31,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = GameStart)
 	FRotator CharacterStartRotation;
 
-public:
-
 	UFUNCTION()
 	void PauseGame();
+
+public:
+
+	bool bIsGamePaused();
 
 	UFUNCTION()
 	void ReturnToTitle();

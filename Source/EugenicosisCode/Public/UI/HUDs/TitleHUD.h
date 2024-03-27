@@ -7,6 +7,8 @@
 #include "TitleHUD.generated.h"
 
 class UTitleMenu;
+class UGameProgressMenu;
+class UGameProgressInfoWidget;
 class USettingsMenu;
 
 UCLASS()
@@ -21,10 +23,22 @@ protected:
 	TSubclassOf<UTitleMenu> TitleMenuClass;
 
 	UPROPERTY(EditAnywhere)
+	TSubclassOf<UGameProgressMenu> GameProgressMenuClass;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UGameProgressInfoWidget> GameProgressInfoWidgetClass;
+
+	UPROPERTY(EditAnywhere)
 	TSubclassOf<USettingsMenu> SettingsMenuClass;
 
 	UPROPERTY()
 	UTitleMenu* TitleMenu;
+
+	UPROPERTY() 
+	UGameProgressMenu* GameProgressMenu;
+
+	UPROPERTY()
+	UGameProgressInfoWidget* GameProgressInfoWidget;
 
 	UPROPERTY()
 	USettingsMenu* SettingsMenu;
@@ -33,6 +47,12 @@ protected:
 
 	UFUNCTION()
 	void ShowTitleMenu();
+
+	UFUNCTION()
+	void ShowGameProgressMenu();
+
+	UFUNCTION()
+	void ShowGameProgressInfoWidget();
 
 	UFUNCTION()
 	void ShowSettingsMenu();
