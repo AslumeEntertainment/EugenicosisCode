@@ -40,6 +40,8 @@ void ATitleHUD::BeginPlay()
 	TitleMenu->QuitClicked.AddDynamic(GameMode, &AEGC_TitleGameMode::QuitGame);
 
 	GameProgressMenu->BackClicked.AddDynamic(this, &ATitleHUD::ShowTitleMenu);
+	GameProgressMenu->BackgroundClicked.AddDynamic(GameProgressInfoWidget, &UGameProgressInfoWidget::RemoveFromParent);
+
 	SettingsMenu->BackClicked.AddDynamic(this, &ATitleHUD::ShowTitleMenu);
 
 	GameProgressInfoWidget->BeforeCutsceneClicked.AddDynamic(GameMode, &AEGC_TitleGameMode::StartGame);
@@ -90,7 +92,7 @@ void ATitleHUD::ShowGameProgressInfoWidget()
 		return;
 	}
 
-	GameProgressInfoWidget->RemoveFromViewport();
+	GameProgressInfoWidget->RemoveFromParent();
 	GameProgressInfoWidget->AddToViewport();
 }
 

@@ -12,10 +12,16 @@ void UGameProgressMenu::OnBackClicked()
 	BackClicked.Broadcast();
 }
 
+void UGameProgressMenu::OnBackgroundClicked()
+{
+	BackgroundClicked.Broadcast();
+}
+
 void UGameProgressMenu::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 	BTN_Back->OnClicked.AddDynamic(this, &UGameProgressMenu::OnBackClicked);
+	BTN_Background->OnClicked.AddDynamic(this, &UGameProgressMenu::OnBackgroundClicked);
 }
 
 void UGameProgressMenu::AddEntryIcon(UGameProgressEntryIcon* EntryIcon)
