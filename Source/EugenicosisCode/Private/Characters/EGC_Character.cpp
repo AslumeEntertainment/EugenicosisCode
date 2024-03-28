@@ -35,8 +35,6 @@ void AEGC_Character::PossessedBy(AController* NewController)
 	GetWorldTimerManager().SetTimer(EnergyTimerHandle, this, &AEGC_Character::UpdateEnergy, 0.5f, true, 0.01f);
 }
 
-
-
 // Called every frame
 void AEGC_Character::Tick(float DeltaTime)
 {
@@ -62,11 +60,6 @@ void AEGC_Character::UpdateEnergy()
 
 void AEGC_Character::Move(const FInputActionValue& Value)
 {
-	if (bIsPaused)
-	{
-		return;
-	}
-
 	FVector2D MovementVector = Value.Get<FVector2D>();
 	AddMovementInput(GetActorForwardVector(), MovementVector.Y);
 	AddMovementInput(GetActorRightVector(), MovementVector.X);
@@ -74,11 +67,6 @@ void AEGC_Character::Move(const FInputActionValue& Value)
 
 void AEGC_Character::Look(const FInputActionValue& Value)
 {
-	if (bIsPaused)
-	{
-		return;
-	}
-
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 	AddControllerYawInput(LookAxisVector.X);
 	AddControllerPitchInput(LookAxisVector.Y);
@@ -86,11 +74,6 @@ void AEGC_Character::Look(const FInputActionValue& Value)
 
 void AEGC_Character::ToggleRun(const FInputActionValue& Value)
 {
-	if (bIsPaused)
-	{
-		return;
-	}
-
 	bIsRunning = Value.Get<bool>();
 
 	UCharacterMovementComponent* Movement = GetCharacterMovement();
@@ -117,11 +100,10 @@ void AEGC_Character::TogglePause(const FInputActionValue& Value)
 		UE_LOG(LogTemp, Error, TEXT("AEGC_Character::TogglePause IsValid(GameMode) == false"));
 		return;
 	}
-	
-	bIsPaused = GameMode->bIsGamePaused();
 
-	if (bIsPaused)
+	if (GameMode->bIsGamePaused())
 	{
+		ResetCharacterMovement();
 		GetWorldTimerManager().ClearTimer(EnergyTimerHandle);
 	}
 	else
@@ -132,11 +114,6 @@ void AEGC_Character::TogglePause(const FInputActionValue& Value)
 
 void AEGC_Character::StartCameraMovement(const FInputActionValue& Value)
 {
-	if (bIsPaused)
-	{
-		return;
-	}
-
 	bIsMoving = true;
 	ToggleCameraShake(IdleCameraShake, false);
 	ToggleCameraShake(GetCharacterMovement()->MaxWalkSpeed > 300 ? RunCameraShake : WalkCameraShake);
@@ -145,11 +122,6 @@ void AEGC_Character::StartCameraMovement(const FInputActionValue& Value)
 
 void AEGC_Character::ClearCameraMovement(const FInputActionValue& Value)
 {
-	if (bIsPaused)
-	{
-		return;
-	}
-
 	bIsMoving = false;
 	ToggleCameraShake(IdleCameraShake);
 	ToggleCameraShake(WalkCameraShake, false);
@@ -167,10 +139,22 @@ void AEGC_Character::ToggleCameraShake(TSubclassOf<class UCameraShakeBase> Camer
 	OnOff ? PC->ClientStartCameraShake(CameraShake) : PC->ClientStopCameraShake(CameraShake);
 }
 
+void AEGC_Character::ResetCharacterMovement()
+{
+	bIsMoving = false;
+	bIsRunning = false;
+
+	UCharacterMovementComponent* Movement = GetCharacterMovement();
+	Movement->MaxWalkSpeed = MaxWalkSpeed;
+	
+	ToggleCameraShake(IdleCameraShake);
+	ToggleCameraShake(WalkCameraShake, false);
+	ToggleCameraShake(RunCameraShake, false);
+}
+
 // Called to bind functionality to input
 void AEGC_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);

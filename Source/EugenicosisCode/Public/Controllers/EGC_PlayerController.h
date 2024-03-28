@@ -8,9 +8,7 @@
 
 class UInputMappingContext;
 
-/**
- * 
- */
+
 UCLASS()
 class EUGENICOSISCODE_API AEGC_PlayerController : public APlayerController
 {
@@ -19,7 +17,13 @@ class EUGENICOSISCODE_API AEGC_PlayerController : public APlayerController
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	UInputMappingContext* InputMappingContext;
+	UInputMappingContext* GameplayInputMappingContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputMappingContext* UIInputMappingContext;
+
+	UFUNCTION()
+	void SwitchInputMappingContext();
 
 protected:
 

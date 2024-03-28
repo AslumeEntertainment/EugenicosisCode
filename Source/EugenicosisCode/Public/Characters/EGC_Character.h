@@ -29,7 +29,6 @@ public:
 private:
 	bool bIsMoving = false;
 	bool bIsRunning = false;
-	bool bIsPaused = false;
 
 	FTimerHandle EnergyTimerHandle;
 
@@ -99,6 +98,8 @@ protected:
 	void ClearCameraMovement(const FInputActionValue& Value);
 
 	void ToggleCameraShake(TSubclassOf<class UCameraShakeBase> CameraShake, bool OnOff = true);
+
+	void ResetCharacterMovement();
 
 public:	
 	// Called every frame

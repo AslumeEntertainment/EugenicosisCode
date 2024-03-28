@@ -20,8 +20,14 @@ protected:
 	UFUNCTION()
 	void OnBackClicked();
 
+	UFUNCTION()
+	void OnBackgroundClicked();
+
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UButton* BTN_Back;
+
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UButton* BTN_Background;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UWrapBox* EntryBox;
@@ -37,4 +43,5 @@ public:
 	TArray<UWidget*> GetEntryIcons();
 
 	FButtonClicked BackClicked;
+	FButtonClicked BackgroundClicked;
 };
