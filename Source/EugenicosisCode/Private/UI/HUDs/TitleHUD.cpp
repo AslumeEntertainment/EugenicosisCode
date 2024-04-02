@@ -6,6 +6,7 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 
 #include "Gamemodes/EGC_TitleGameMode.h"
+#include "Headers/SaveSystem/GameProgressDataStruct.h"
 #include "UI/Widgets/Game/TitleMenu.h"
 #include "UI/Widgets/Game/GameProgressMenu.h"
 #include "UI/Widgets/Game/GameProgressInfoWidget.h"
@@ -34,6 +35,13 @@ void ATitleHUD::BeginPlay()
 	GameProgressInfoWidget = CreateWidget<UGameProgressInfoWidget>(UGameplayStatics::GetGameInstance(GetWorld()), GameProgressInfoWidgetClass);
 	SettingsMenu = CreateWidget<USettingsMenu>(UGameplayStatics::GetGameInstance(GetWorld()), SettingsMenuClass);
 
+	for (int i = 1; i < GameMode->GetGameProgressDataMaxLevel(); i++)
+	{
+		TArray<FGameProgressDataStruct*> GameProgressLevelData = GameMode->GetGameProgressionDataByLevel(i+1);
+		GameProgressMenu->DrawTreeLevel(GameProgressLevelData, i+1);
+	}
+	
+
 	TitleMenu->ContinueClicked.AddDynamic(this, &ATitleHUD::ShowGameProgressMenu);
 	TitleMenu->NewGameClicked.AddDynamic(GameMode, &AEGC_TitleGameMode::StartGame);
 	TitleMenu->OptionsClicked.AddDynamic(this, &ATitleHUD::ShowSettingsMenu);
@@ -48,9 +56,13 @@ void ATitleHUD::BeginPlay()
 	GameProgressInfoWidget->AfterCutsceneClicked.AddDynamic(GameMode, &AEGC_TitleGameMode::StartGame);
 
 	TArray<UWidget*> GameProgressEntries = GameProgressMenu->GetEntryIcons();
-	for (UWidget* Icon : GameProgressEntries)
+	for (UWidget* Entry : GameProgressEntries)
 	{
-		Cast<UGameProgressEntryIcon>(Icon)->IconClicked.AddDynamic(this, &ATitleHUD::ShowGameProgressInfoWidget);
+		UGameProgressEntryIcon* Icon = Cast<UGameProgressEntryIcon>(Entry);
+		if (Icon)
+		{
+			Icon->IconClicked.AddDynamic(this, &ATitleHUD::ShowGameProgressInfoWidget);
+		}
 	}
 
 	ShowTitleMenu();

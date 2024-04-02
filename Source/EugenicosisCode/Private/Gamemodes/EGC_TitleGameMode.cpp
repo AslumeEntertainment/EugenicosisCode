@@ -5,6 +5,7 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "Camera/CameraActor.h"
+#include "Headers/SaveSystem/GameProgressDataStruct.h"
 
 void AEGC_TitleGameMode::BeginPlay()
 {
@@ -56,4 +57,38 @@ void AEGC_TitleGameMode::QuitGame()
 	}
 
 	PlayerController->ConsoleCommand("quit");
+}
+
+TArray<struct FGameProgressDataStruct*> AEGC_TitleGameMode::GetAllGameProgressionData()
+{
+	TArray<FGameProgressDataStruct*> AllRows;
+	GameProgressDataDT->GetAllRows(TEXT("AEGC_TitleGameMode::GetAllGameProgressionData"), AllRows);
+
+	return AllRows;
+}
+
+TArray<struct FGameProgressDataStruct*> AEGC_TitleGameMode::GetGameProgressionDataByLevel(int Level)
+{
+	TArray<FGameProgressDataStruct*> WantedRows;
+
+	TArray<FGameProgressDataStruct*> AllRows;
+	GameProgressDataDT->GetAllRows(TEXT("AEGC_TitleGameMode::GetAllGameProgressionData"), AllRows);
+
+	for (FGameProgressDataStruct* Row : AllRows) 
+	{
+		if (Row->Level == Level)
+		{
+			WantedRows.Add(Row);
+		}
+	}
+
+	return WantedRows;
+}
+
+int AEGC_TitleGameMode::GetGameProgressDataMaxLevel()
+{
+	TArray<FGameProgressDataStruct*> AllRows;
+	GameProgressDataDT->GetAllRows(TEXT("AEGC_TitleGameMode::GetAllGameProgressionData"), AllRows);
+
+	return AllRows[AllRows.Num()-1]->Level;
 }

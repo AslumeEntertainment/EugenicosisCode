@@ -4,11 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "ButtonDelegates.h"
+#include "Headers/UI/ButtonDelegates.h"
 #include "GameProgressMenu.generated.h"
 
-class UWrapBox;
+class UCanvasPanel;
 class UGameProgressEntryIcon;
+class UGameProgressTreeWidget;
 
 UCLASS()
 class EUGENICOSISCODE_API UGameProgressMenu : public UUserWidget
@@ -24,21 +25,19 @@ protected:
 	void OnBackgroundClicked();
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UGameProgressTreeWidget* GameProgressTree;
+
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UButton* BTN_Back;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UButton* BTN_Background;
 
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UWrapBox* EntryBox;
-
 public:
 
 	virtual void NativeOnInitialized() override;
 
-	void ReloadLines();
-
-	void AddEntryIcon(UGameProgressEntryIcon* EntryIcon);
+	void DrawTreeLevel(TArray<struct FGameProgressDataStruct*> GameProgressData, int Level);
 
 	TArray<UWidget*> GetEntryIcons();
 
