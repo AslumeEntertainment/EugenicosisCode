@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "ButtonDelegates.h"
+#include "Headers/UI/ButtonDelegates.h"
 #include "TitleMenu.generated.h"
 
 class UButton;

@@ -22,6 +22,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	FName DefaultCameraTag = FName("CamAct1");
 
+	UPROPERTY(EditDefaultsOnly)
+	class UDataTable* GameProgressDataDT;
+
 	void SwitchCamera(FName CameraTag);
 
 public:
@@ -31,5 +34,11 @@ public:
 
 	UFUNCTION()
 	void QuitGame();
+
+	TArray<struct FGameProgressDataStruct*> GetAllGameProgressionData();
+
+	TArray<struct FGameProgressDataStruct*> GetGameProgressionDataByLevel(int Level);
+
+	int GetGameProgressDataMaxLevel();
 
 };
