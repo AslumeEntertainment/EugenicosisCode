@@ -38,6 +38,7 @@ public:
 	virtual void NativeOnInitialized() override;
 
 	void DrawTreeLevel(TArray<struct FGameProgressDataStruct*> GameProgressData, int Level);
+	void DrawTreeLines(TArray<struct FGameProgressDataStruct*> GameProgressData);
 
 	TArray<UWidget*> GetEntryIcons();
 

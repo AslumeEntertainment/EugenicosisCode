@@ -24,21 +24,30 @@ void UGameProgressMenu::NativeOnInitialized()
 
 void UGameProgressMenu::DrawTreeLevel(TArray<struct FGameProgressDataStruct*> GameProgressData, int Level)
 {
+	int RootSide = GameProgressTree->GetRootIconSize().Y;
 	int Segments = GameProgressData.Num() * 2 - 1;
-	float StartingY = 450 - 145 * (Segments / 2);
+	float StartingY = GameProgressTree->GetRootIconPosition().Y - RootSide * (Segments / 2);
+
 
 	FVector2D RootPosition = GameProgressTree->GetRootIconPosition();
-
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, RootPosition.ToString());
 
 	for (int i = 0; i < Segments; i += 2)
 	{
 		UGameProgressEntryIcon* Icon = CreateWidget<UGameProgressEntryIcon>(UGameplayStatics::GetGameInstance(GetWorld()), GameProgressTree->GetIconClass());
-		FVector2D IconPosition = FVector2D(RootPosition.X + 145 * (Level * 2 - 2), StartingY + (i * 145));
+		FVector2D IconPosition = FVector2D(RootPosition.X + RootSide * (Level * 2 - 2), StartingY + (i * RootSide));
 		
 		GameProgressTree->AddIconToCanvas(Icon, IconPosition);
+	}
+}
 
-		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, IconPosition.ToString());
+void UGameProgressMenu::DrawTreeLines(TArray<struct FGameProgressDataStruct*> GameProgressData)
+{
+	TArray<UWidget*> EntryIcons = GameProgressTree->GetEntryIcons();
+
+	for (int i = 1; i < EntryIcons.Num(); i++) {
+		if (GameProgressData[i]->bIsPassed == true) {
+			GameProgressTree->ConnectIcons(EntryIcons[GameProgressData[i]->Parent], EntryIcons[i]);
+		}
 	}
 }
 

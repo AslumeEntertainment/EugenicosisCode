@@ -61,6 +61,12 @@ void AEGC_TitleGameMode::QuitGame()
 
 TArray<struct FGameProgressDataStruct*> AEGC_TitleGameMode::GetAllGameProgressionData()
 {
+	if (!IsValid(GameProgressDataDT))
+	{
+		UE_LOG(LogTemp, Error, TEXT("AEGC_TitleGameMode::GetAllGameProgressionData IsValid(GameProgressDataDT) == false"));
+		return TArray<struct FGameProgressDataStruct*>();
+	}
+
 	TArray<FGameProgressDataStruct*> AllRows;
 	GameProgressDataDT->GetAllRows(TEXT("AEGC_TitleGameMode::GetAllGameProgressionData"), AllRows);
 
@@ -69,6 +75,12 @@ TArray<struct FGameProgressDataStruct*> AEGC_TitleGameMode::GetAllGameProgressio
 
 TArray<struct FGameProgressDataStruct*> AEGC_TitleGameMode::GetGameProgressionDataByLevel(int Level)
 {
+	if (!IsValid(GameProgressDataDT))
+	{
+		UE_LOG(LogTemp, Error, TEXT("AEGC_TitleGameMode::GetAllGameProgressionData IsValid(GameProgressDataDT) == false"));
+		return TArray<struct FGameProgressDataStruct*>();
+	}
+
 	TArray<FGameProgressDataStruct*> WantedRows;
 
 	TArray<FGameProgressDataStruct*> AllRows;
@@ -87,6 +99,12 @@ TArray<struct FGameProgressDataStruct*> AEGC_TitleGameMode::GetGameProgressionDa
 
 int AEGC_TitleGameMode::GetGameProgressDataMaxLevel()
 {
+	if (!IsValid(GameProgressDataDT))
+	{
+		UE_LOG(LogTemp, Error, TEXT("AEGC_TitleGameMode::GetAllGameProgressionData IsValid(GameProgressDataDT) == false"));
+		return 0;
+	}
+
 	TArray<FGameProgressDataStruct*> AllRows;
 	GameProgressDataDT->GetAllRows(TEXT("AEGC_TitleGameMode::GetAllGameProgressionData"), AllRows);
 
