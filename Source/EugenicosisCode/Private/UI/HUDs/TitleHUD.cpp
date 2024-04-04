@@ -40,7 +40,7 @@ void ATitleHUD::BeginPlay()
 		TArray<FGameProgressDataStruct*> GameProgressLevelData = GameMode->GetGameProgressionDataByLevel(i+1);
 		GameProgressMenu->DrawTreeLevel(GameProgressLevelData, i+1);
 	}
-	
+	GameProgressMenu->DrawTreeLines(GameMode->GetAllGameProgressionData());
 
 	TitleMenu->ContinueClicked.AddDynamic(this, &ATitleHUD::ShowGameProgressMenu);
 	TitleMenu->NewGameClicked.AddDynamic(GameMode, &AEGC_TitleGameMode::StartGame);

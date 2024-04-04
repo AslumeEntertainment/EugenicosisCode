@@ -16,6 +16,9 @@ class EUGENICOSISCODE_API UGameProgressTreeWidget : public UUserWidget
 	
 protected:
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UUserWidget> ConnectingLineWidgetClass;
+
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UCanvasPanel* Canvas;
 
@@ -25,10 +28,14 @@ protected:
 public:
 
 	void AddIconToCanvas(UWidget* Icon, FVector2D Position);
+	void ConnectIcons(UWidget* FirstIcon, UWidget* SecondIcon);
 
 	FVector2D GetRootIconPosition();
+	FVector2D GetRootIconSize();
+	FVector2D GetConnectingLineSize();
 
 	TArray<UWidget*> GetEntryIcons();
 
 	UClass* GetIconClass();
+	UClass* GetConnectingLineWidgetClass();
 };

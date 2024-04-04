@@ -14,19 +14,16 @@ struct FGameProgressDataStruct : public FTableRowBase
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName Id;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText Title;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText Description;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName Parent;
+	int Parent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FName> Children;
+	TArray<int> Children;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int Level;
