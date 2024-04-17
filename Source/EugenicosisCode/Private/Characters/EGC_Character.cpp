@@ -2,6 +2,10 @@
 
 
 #include "Characters/EGC_Character.h"
+
+#include "Gamemodes/EGC_GameModeBase.h"
+#include "Interactables/Interactable.h"
+
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EnhancedInputComponent.h"
@@ -9,8 +13,8 @@
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
 #include "EugenicosisCode.h"
+#include "Camera/CameraComponent.h"
 
-#include "Gamemodes/EGC_GameModeBase.h"
 
 
 // Sets default values
@@ -19,9 +23,15 @@ AEGC_Character::AEGC_Character()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	CharacterAnchorPoint = CreateDefaultSubobject<USceneComponent>(TEXT("AnchorPoint"));
+	CharacterAnchorPoint->SetupAttachment(GetRootComponent());
+
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
+	CameraComponent->SetupAttachment(GetRootComponent());
+	CameraComponent->SetRelativeLocation(FVector(-39.56f, 1.75f, 60.f));
+	CameraComponent->bUsePawnControlRotation = true;
 }
 
-// Called when the game starts or when spawned
 void AEGC_Character::BeginPlay()
 {
 	Super::BeginPlay();
@@ -32,14 +42,102 @@ void AEGC_Character::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 	ToggleCameraShake(IdleCameraShake);
 	OnEnergyRateChanged.ExecuteIfBound(1);
-	GetWorldTimerManager().SetTimer(EnergyTimerHandle, this, &AEGC_Character::UpdateEnergy, 0.5f, true, 0.01f);
+
+	CameraHeight = CameraComponent->GetComponentLocation().Z - CharacterAnchorPoint->GetComponentLocation().Z;
+	InteractionBoundsSlope = CameraHeight / (Reach - Reach * LowerReachPercent);
+	InteractionBoundsOffset = -InteractionBoundsSlope * Reach * LowerReachPercent;
+	FVector2D CameraLocation = FVector2D(0, CameraHeight);
+	FVector2D LowerReachBound = FVector2D(Reach * LowerReachPercent, 0);
+	MaxReach = FMath::Sqrt(FMath::Pow(CameraLocation.X-LowerReachBound.X, 2) + FMath::Pow(CameraLocation.Y - LowerReachBound.Y, 2));
+
+	GetWorldTimerManager().SetTimer(GenericTimerHandle, this, &AEGC_Character::GenericPeriodicFunctionCalls, GenericCallRate, true, 0.01f);
+}
+
+void AEGC_Character::GenericPeriodicFunctionCalls()
+{
+	
+	UpdateEnergy();
 }
 
 // Called every frame
 void AEGC_Character::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	EmitInteractionChecker();
+}
 
+void AEGC_Character::EmitInteractionChecker()
+{
+	float ModifiedReach = Reach;
+	float CameraPitch = CameraComponent->GetComponentRotation().Pitch;
+	float CameraTan = FMath::Tan(FMath::DegreesToRadians(CameraPitch));
+	float X = (InteractionBoundsOffset - CameraHeight) / ( - InteractionBoundsSlope);
+	float Y = ((InteractionBoundsOffset * CameraTan) - (CameraHeight * InteractionBoundsSlope)) / (CameraTan - InteractionBoundsSlope);
+	FVector2D PlanerInteractionEndPoint = FVector2D(X, Y);
+	
+	ModifiedReach = FMath::Clamp(FMath::Sqrt(FMath::Pow(PlanerInteractionEndPoint.X, 2) + FMath::Pow(PlanerInteractionEndPoint.Y - CameraHeight, 2)), Reach, MaxReach);
+	FVector StartTrace = CameraComponent->GetComponentLocation();
+	FVector EndTrace = CameraComponent->GetForwardVector() * ModifiedReach + StartTrace;
+	
+	const FName TraceTag("InteractableTraceTag");
+
+	UWorld* World = GetWorld();
+	if (IsValid(World) == false)
+	{
+		UE_LOG(LogTemp, Error, TEXT("AEGC_Character::EmitInteractionChecker IsValid(World) == false"));
+		return;
+	}
+
+	FHitResult HitResult;
+	FCollisionQueryParams CQP;
+	CQP.AddIgnoredActor(this);
+	CQP.TraceTag = TraceTag;
+
+	if (bShouldPrintDebug)
+	{
+		World->DebugDrawTraceTag = TraceTag;
+		UE_LOG(LogTemp, Warning, TEXT("Camera Pitch - %f\nTan - %f"), CameraPitch, CameraTan);
+		UE_LOG(LogTemp, Warning, TEXT("Reach - %f / (%f - %f)"), ModifiedReach, Reach, MaxReach);
+	}
+
+	World->LineTraceSingleByChannel(HitResult, StartTrace, EndTrace, ECC_GameTraceChannel1, CQP);
+
+	CheckForInteractables(HitResult);
+}
+
+void AEGC_Character::CheckForInteractables(FHitResult HitResult)
+{
+	if (bCanInteract == false)
+	{
+		FocusedInteractableObject = nullptr;
+		OnInteraction.Broadcast(FText());
+	}
+
+	AActor* HitActor = HitResult.GetActor();
+	UPrimitiveComponent* HitComponent = HitResult.GetComponent();
+	IInteractable* InteractableActor = Cast<IInteractable>(HitActor);
+	IInteractable* InteractableComponent = Cast<IInteractable>(HitComponent);
+
+	if (HitActor == nullptr)
+	{
+		FocusedInteractableObject = nullptr;
+		OnInteraction.Broadcast(FText());
+		return;
+	}
+	if (InteractableComponent != nullptr)
+	{
+		FocusedInteractableObject = HitComponent;
+		OnInteraction.Broadcast(InteractableComponent->Execute_DisplayInteractText(HitComponent));
+		return;
+	}
+	if (InteractableActor == nullptr)
+	{
+		FocusedInteractableObject = nullptr;
+		OnInteraction.Broadcast(FText());
+		return;
+	}
+	FocusedInteractableObject = HitActor;
+	OnInteraction.Broadcast(InteractableActor->Execute_DisplayInteractText(HitActor));
 }
 
 void AEGC_Character::UpdateEnergy()
@@ -104,11 +202,11 @@ void AEGC_Character::TogglePause(const FInputActionValue& Value)
 	if (GameMode->bIsGamePaused())
 	{
 		ResetCharacterMovement();
-		GetWorldTimerManager().ClearTimer(EnergyTimerHandle);
+		GetWorldTimerManager().ClearTimer(GenericTimerHandle);
 	}
 	else
 	{
-		GetWorldTimerManager().SetTimer(EnergyTimerHandle, this, &AEGC_Character::UpdateEnergy, 0.5f, true, 0.01f);
+		GetWorldTimerManager().SetTimer(GenericTimerHandle, this, &AEGC_Character::GenericPeriodicFunctionCalls, GenericCallRate, true, 0.01f);
 	}
 }
 

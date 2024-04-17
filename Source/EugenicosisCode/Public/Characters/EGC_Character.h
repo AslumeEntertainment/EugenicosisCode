@@ -6,15 +6,15 @@
 #include "GameFramework/Character.h"
 #include "EGC_Character.generated.h"
 
+class UCameraComponent;
 class UInputComponent;
 class UInputAction;
 class UInputMappingContext;
 class UCameraShakeBase;
 struct FInputActionValue;
 
-UDELEGATE()
 DECLARE_DYNAMIC_DELEGATE_OneParam(FEnergyBlurSignature, float, Percentage);
-UDELEGATE()
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInteractingSignature, FText, ActionText);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPauseNotifySignature);
 
 UCLASS()
@@ -29,14 +29,32 @@ public:
 private:
 	bool bIsMoving = false;
 	bool bIsRunning = false;
+	bool bCanInteract = true;
 
-	FTimerHandle EnergyTimerHandle;
+	FTimerHandle GenericTimerHandle;
+
+	UObject* FocusedInteractableObject;
+
+	double CameraHeight;
+	double InteractionBoundsSlope;
+	double InteractionBoundsOffset;
+	double MaxReach;
+
+	void EmitInteractionChecker();
+	void CheckForInteractables(FHitResult HitResult);
+	void GenericPeriodicFunctionCalls();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	virtual void PossessedBy(AController* NewController) override;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UCameraComponent* CameraComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Interaction, meta = (AllowPrivateAccess = "true"))
+	USceneComponent* CharacterAnchorPoint;
 
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input)
@@ -47,10 +65,13 @@ protected:
 	UInputAction* MoveAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	class UInputAction* LookAction;
+	UInputAction* LookAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* PauseAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Debug)
+	bool bShouldPrintDebug = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
 	float MaxSprintSpeed = 600;
@@ -73,14 +94,23 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CameraMovement, meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
 	float EnergyToBlurThreshold = 0.5;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CameraMovement)
-	TSubclassOf<class UCameraShakeBase> IdleCameraShake;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Interaction)
+	float Reach = 75;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Interaction, meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
+	float LowerReachPercent = 0.85;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Periodic Generic Functions")
+	float GenericCallRate = 0.5f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CameraMovement)
-	TSubclassOf<class UCameraShakeBase> WalkCameraShake;
+	TSubclassOf<UCameraShakeBase> IdleCameraShake;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CameraMovement)
-	TSubclassOf<class UCameraShakeBase> RunCameraShake;
+	TSubclassOf<UCameraShakeBase> WalkCameraShake;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = CameraMovement)
+	TSubclassOf<UCameraShakeBase> RunCameraShake;
 
 	UFUNCTION()
 	void UpdateEnergy();
@@ -97,7 +127,7 @@ protected:
 
 	void ClearCameraMovement(const FInputActionValue& Value);
 
-	void ToggleCameraShake(TSubclassOf<class UCameraShakeBase> CameraShake, bool OnOff = true);
+	void ToggleCameraShake(TSubclassOf<UCameraShakeBase> CameraShake, bool OnOff = true);
 
 	void ResetCharacterMovement();
 
@@ -106,9 +136,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	FEnergyBlurSignature OnEnergyRateChanged;
 	FPauseNotifySignature PauseNotifyDelegate;
+	FInteractingSignature OnInteraction;
 
 };
