@@ -4,7 +4,7 @@
 
 #define LOCTEXT_NAMESPACE "FEugenicosisCodeModule"
 
-DEFINE_LOG_CATEGORY(LogSmartObjects);
+DEFINE_LOG_CATEGORY(LogInteractables);
 DEFINE_LOG_CATEGORY(LogCharacter);
 DEFINE_LOG_CATEGORY(LogCinematics);
 

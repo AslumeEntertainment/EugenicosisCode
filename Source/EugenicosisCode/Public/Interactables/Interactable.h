@@ -6,7 +6,7 @@
 #include "UObject/Interface.h"
 #include "Interactable.generated.h"
 
-class AActor;
+class AEGC_Character;
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
@@ -26,7 +26,7 @@ class EUGENICOSISCODE_API IInteractable
 public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interact")
-	void InteractRequest(AActor* SomeInteractingActor);
+	void InteractRequest(AEGC_Character* InteractingCharacter);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interact")
 	FText DisplayInteractText();
