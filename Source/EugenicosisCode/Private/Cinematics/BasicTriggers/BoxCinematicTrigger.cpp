@@ -17,12 +17,10 @@ ABoxCinematicTrigger::ABoxCinematicTrigger()
 
 void ABoxCinematicTrigger::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Overlapna"));
 	for (FName Tag : TriggeringTags)
 	{
 		if (OtherActor->ActorHasTag(Tag))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Imash Gi"));
 			TriggerCinematic_Implementation();
 			return;
 		}
@@ -37,7 +35,6 @@ void ABoxCinematicTrigger::AttachToCinematicManager_Implementation(ACinematicMan
 
 void ABoxCinematicTrigger::TriggerCinematic_Implementation(int ID)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Delegat"));
 	OnCinematicRequirementsFulfilled.ExecuteIfBound(this, ID);
 }
 

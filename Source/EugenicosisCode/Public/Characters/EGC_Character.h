@@ -70,8 +70,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* PauseAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* InteractAction;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Debug)
 	bool bShouldPrintDebug = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Debug)
+	bool bDebugCameraPitch = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Debug)
+	bool bDebugInteracting = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
 	float MaxSprintSpeed = 600;
@@ -118,6 +127,8 @@ protected:
 	void Move(const FInputActionValue& Value);
 
 	void Look(const FInputActionValue& Value);
+
+	void Interact(const FInputActionValue& Value);
 
 	void ToggleRun(const FInputActionValue& Value);
 

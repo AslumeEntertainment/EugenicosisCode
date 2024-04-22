@@ -84,7 +84,7 @@ void AEGC_Character::EmitInteractionChecker()
 	UWorld* World = GetWorld();
 	if (IsValid(World) == false)
 	{
-		UE_LOG(LogTemp, Error, TEXT("AEGC_Character::EmitInteractionChecker IsValid(World) == false"));
+		UE_LOG(LogCharacter, Error, TEXT("AEGC_Character::EmitInteractionChecker IsValid(World) == false"));
 		return;
 	}
 
@@ -95,9 +95,15 @@ void AEGC_Character::EmitInteractionChecker()
 
 	if (bShouldPrintDebug)
 	{
-		World->DebugDrawTraceTag = TraceTag;
-		UE_LOG(LogTemp, Warning, TEXT("Camera Pitch - %f\nTan - %f"), CameraPitch, CameraTan);
-		UE_LOG(LogTemp, Warning, TEXT("Reach - %f / (%f - %f)"), ModifiedReach, Reach, MaxReach);
+		if (bDebugInteracting)
+		{
+			World->DebugDrawTraceTag = TraceTag;
+		}
+		if (bDebugCameraPitch)
+		{
+			UE_LOG(LogCharacter, Warning, TEXT("Camera Pitch - %f\nTan - %f"), CameraPitch, CameraTan);
+			UE_LOG(LogCharacter, Warning, TEXT("Reach - %f / (%f - %f)"), ModifiedReach, Reach, MaxReach);
+		}
 	}
 
 	World->LineTraceSingleByChannel(HitResult, StartTrace, EndTrace, ECC_GameTraceChannel1, CQP);
@@ -170,6 +176,19 @@ void AEGC_Character::Look(const FInputActionValue& Value)
 	AddControllerPitchInput(LookAxisVector.Y);
 }
 
+void AEGC_Character::Interact(const FInputActionValue& Value)
+{
+	if (IsValid(FocusedInteractableObject) == false)
+	{
+		if (bShouldPrintDebug && bDebugInteracting)
+		{
+			UE_LOG(LogCharacter, Warning, TEXT("No Interaction Objbect"));
+		}
+		return;
+	}
+	Cast<IInteractable>(FocusedInteractableObject)->Execute_InteractRequest(FocusedInteractableObject, this);
+}
+
 void AEGC_Character::ToggleRun(const FInputActionValue& Value)
 {
 	bIsRunning = Value.Get<bool>();
@@ -195,7 +214,7 @@ void AEGC_Character::TogglePause(const FInputActionValue& Value)
 	AEGC_GameModeBase* GameMode = Cast<AEGC_GameModeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (!IsValid(GameMode))
 	{
-		UE_LOG(LogTemp, Error, TEXT("AEGC_Character::TogglePause IsValid(GameMode) == false"));
+		UE_LOG(LogCharacter, Error, TEXT("AEGC_Character::TogglePause IsValid(GameMode) == false"));
 		return;
 	}
 
@@ -261,8 +280,11 @@ void AEGC_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Started, this, &AEGC_Character::StartCameraMovement);
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AEGC_Character::ClearCameraMovement);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AEGC_Character::Look);
+	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AEGC_Character::Interact);
 	EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &AEGC_Character::ToggleRun);
 	EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Triggered, this, &AEGC_Character::TogglePause);
+	
+	
 
 }
 

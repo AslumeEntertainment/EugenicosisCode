@@ -6,7 +6,7 @@
 #include "Logging/LogMacros.h"
 #include "Modules/ModuleManager.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogSmartObjects, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogInteractables, Log, All);
 DECLARE_LOG_CATEGORY_EXTERN(LogCharacter, Log, All);
 DECLARE_LOG_CATEGORY_EXTERN(LogCinematics, Log, All);
 
