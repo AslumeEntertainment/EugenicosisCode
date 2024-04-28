@@ -33,5 +33,5 @@ public:
 	UFUNCTION()
 	void SetEntryName(FText EntryName);
 
-	FButtonClicked IconClicked;
+	FIconClicked IconClicked;
 };

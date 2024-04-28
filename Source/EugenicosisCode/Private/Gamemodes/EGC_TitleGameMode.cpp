@@ -97,6 +97,28 @@ TArray<struct FGameProgressDataStruct*> AEGC_TitleGameMode::GetGameProgressionDa
 	return WantedRows;
 }
 
+FGameProgressDataStruct* AEGC_TitleGameMode::GetGameProgressionEntryByName(FText EntryName)
+{
+	if (!IsValid(GameProgressDataDT))
+	{
+		UE_LOG(LogTemp, Error, TEXT("AEGC_TitleGameMode::GetGameProgressionEntryByName IsValid(GameProgressDataDT) == false"));
+		return nullptr;
+	}
+
+	TArray<FGameProgressDataStruct*> AllRows;
+	GameProgressDataDT->GetAllRows(TEXT("AEGC_TitleGameMode::GetAllGameProgressionData"), AllRows);
+
+	for (FGameProgressDataStruct* Row : AllRows)
+	{
+		if (Row->EntryName.CompareTo(EntryName) == 0)
+		{
+			return Row;
+		}
+	}
+
+	return nullptr;
+}
+
 int AEGC_TitleGameMode::GetGameProgressDataMaxLevel()
 {
 	if (!IsValid(GameProgressDataDT))

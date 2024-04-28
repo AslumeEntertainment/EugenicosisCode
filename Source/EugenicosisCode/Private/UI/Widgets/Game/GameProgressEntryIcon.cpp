@@ -14,7 +14,7 @@ void UGameProgressEntryIcon::NativeOnInitialized()
 
 void UGameProgressEntryIcon::OnIconClicked()
 {
-	IconClicked.Broadcast();
+	IconClicked.Broadcast(TXT_EntryName->GetText());
 }
 
 void UGameProgressEntryIcon::SetEntryName(FText EntryName)

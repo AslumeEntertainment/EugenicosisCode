@@ -34,6 +34,7 @@ void UGameProgressMenu::DrawTreeLevel(TArray<struct FGameProgressDataStruct*> Ga
 	for (int i = 0; i < Segments; i += 2)
 	{
 		UGameProgressEntryIcon* Icon = CreateWidget<UGameProgressEntryIcon>(UGameplayStatics::GetGameInstance(GetWorld()), GameProgressTree->GetIconClass());
+		Icon->SetEntryName(GameProgressData[i/2]->EntryName);
 		FVector2D IconPosition = FVector2D(RootPosition.X + RootSide * (Level * 2 - 2), StartingY + (i * RootSide));
 		
 		GameProgressTree->AddIconToCanvas(Icon, IconPosition);

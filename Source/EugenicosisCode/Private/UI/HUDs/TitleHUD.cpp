@@ -97,14 +97,31 @@ void ATitleHUD::ShowGameProgressMenu()
 	GameProgressMenu->AddToViewport();
 }
 
-void ATitleHUD::ShowGameProgressInfoWidget()
+void ATitleHUD::ShowGameProgressInfoWidget(FText IconName)
 {
 	if (!PlayerOwner || !GameProgressInfoWidget)
 	{
 		return;
 	}
 
+	AEGC_TitleGameMode* GameMode = Cast<AEGC_TitleGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (!IsValid(GameMode))
+	{
+		UE_LOG(LogTemp, Error, TEXT("ATitleHUD::ShowGameProgressInfoWidget IsValid(GameMode) == false"));
+		return;
+	}
+
 	GameProgressInfoWidget->RemoveFromParent();
+
+	FGameProgressDataStruct* ProgressEntryData = GameMode->GetGameProgressionEntryByName(IconName);
+	if (ProgressEntryData == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ATitleHUD::ShowGameProgressInfoWidget ProgressEntryData == nullptr"));
+		return;
+	}
+
+	GameProgressInfoWidget->SetTitle(ProgressEntryData->Title);
+	GameProgressInfoWidget->SetDescription(ProgressEntryData->Description);
 	GameProgressInfoWidget->AddToViewport();
 }
 

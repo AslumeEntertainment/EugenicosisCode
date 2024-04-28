@@ -14,6 +14,9 @@ struct FGameProgressDataStruct : public FTableRowBase
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText EntryName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText Title;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
