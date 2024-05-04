@@ -1,15 +1,61 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Widgets/Game/GameProgressTreeWidget.h"
+#include "UI/Widgets/Game/GameProgressWidgets/GameProgressTreeWidget.h"
 
 #include "Blueprint/WidgetLayoutLibrary.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Blueprint/SlateBlueprintLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
-#include "UI/Widgets/Game/GameProgressEntryIcon.h"
 
+#include "UI/Widgets/Game/GameProgressWidgets/GameProgressEntryIcon.h"
+#include "Headers/UI/DragWidget.h"
+
+
+FEventReply UGameProgressTreeWidget::RedirectMouseDownToWidget(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	FEventReply Reply;
+	Reply.NativeReply = NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+	return Reply;
+}
+
+FReply UGameProgressTreeWidget::NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	return RedirectMouseDownToWidget(InGeometry, InMouseEvent).NativeReply;
+}
+
+FReply UGameProgressTreeWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+	FEventReply ReplyResult = UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, EKeys::LeftMouseButton);
+	return ReplyResult.NativeReply;
+}
+
+void UGameProgressTreeWidget::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation)
+{
+	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
+
+	UDragWidget* DragDropOperation = NewObject<UDragWidget>();
+	this->SetVisibility(ESlateVisibility::HitTestInvisible);
+
+	DragDropOperation->ReferenceWidget = this;
+	DragDropOperation->DragOffset = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
+
+	DragDropOperation->DefaultDragVisual = this;
+	DragDropOperation->Pivot = EDragPivot::MouseDown;
+
+	OutOperation = DragDropOperation;
+	OnBackgroundPressed.Broadcast();
+}
+
+void UGameProgressTreeWidget::NativeOnDragLeave(const FDragDropEvent& DragDropEvent, UDragDropOperation* InOperation)
+{
+	RemoveFromParent();
+}
 
 void UGameProgressTreeWidget::AddIconToCanvas(UWidget* Icon, FVector2D Position)
 {
@@ -69,34 +115,35 @@ void UGameProgressTreeWidget::ConnectIcons(UWidget* FirstIcon, UWidget* SecondIc
 FVector2D UGameProgressTreeWidget::GetRootIconPosition()
 {
 	UCanvasPanelSlot* PanelSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(RootIcon);
-	if (PanelSlot)
+	if (!PanelSlot)
 	{
-		return PanelSlot->GetPosition();
+		return FVector2D();
 	}
 
-	return FVector2D();
+	return PanelSlot->GetPosition();
 }
 
 FVector2D UGameProgressTreeWidget::GetRootIconSize()
 {
 	UCanvasPanelSlot* PanelSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(RootIcon);
-	if (PanelSlot)
+	if (!PanelSlot)
 	{
-		return PanelSlot->GetSize();
+		return FVector2D();
 	}
 
-	return FVector2D();
+	return PanelSlot->GetSize();
 }
 
 FVector2D UGameProgressTreeWidget::GetConnectingLineSize()
 {
 	UCanvasPanelSlot* PanelSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(Canvas->GetAllChildren()[1]);
-	if (PanelSlot)
+	if (!PanelSlot)
 	{
-		return PanelSlot->GetSize();
+		UE_LOG(LogTemp, Warning, TEXT("UGameProgressTreeWidget::GetConnectingLineSize Invalid Line Widget"))
+		return FVector2D();
 	}
 
-	return FVector2D();
+	return PanelSlot->GetSize();
 }
 
 TArray<UWidget*> UGameProgressTreeWidget::GetEntryIcons()

@@ -7,8 +7,8 @@
 
 #include "Gamemodes/EGC_GameModeBase.h"
 #include "UI/Widgets/Game/OverlayWidgetBase.h"
-#include "UI/Widgets/Game/PauseMenu.h"
-#include "UI/Widgets/Game/SettingsMenu.h"
+#include "UI/Widgets/Game/Menus/PauseMenu.h"
+#include "UI/Widgets/Game/Menus/SettingsMenu.h"
 
 void AInGameHUD::BeginPlay()
 {
@@ -100,13 +100,20 @@ void AInGameHUD::SetOverlayBlur(float Percentage)
 
 void AInGameHUD::TogglePauseMenu(bool bIsPaused)
 {
+	if (!PlayerOwner)
+	{
+		return;
+	}
+
 	if (bIsPaused)
 	{
 		ShowPauseMenu();
 	}
 	else
 	{
-		ClearWidgets();
+		PauseMenu->CloseMenu();
+		PlayerOwner->SetInputMode(FInputModeGameOnly());
+		PlayerOwner->bShowMouseCursor = false;
 	}
 }
 

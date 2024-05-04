@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Widgets/Game/TitleMenu.h"
+#include "UI/Widgets/Game/Menus/TitleMenu.h"
 
 #include "Components/Button.h"
 

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Widgets/Game/GameProgressEntryIcon.h"
+#include "UI/Widgets/Game/GameProgressWidgets/GameProgressEntryIcon.h"
 
 #include "Components/Button.h"
 #include "Components/TextBlock.h"

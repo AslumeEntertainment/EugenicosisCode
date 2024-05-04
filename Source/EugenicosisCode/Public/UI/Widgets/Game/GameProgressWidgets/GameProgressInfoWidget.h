@@ -39,11 +39,13 @@ public:
 
 	virtual void NativeOnInitialized() override;
 
-	UFUNCTION()
-	void SetTitle(FText Title);
+	UFUNCTION(BlueprintNativeEvent)
+	void CloseInfo();
 
-	UFUNCTION()
+	void SetTitle(FText Title);
 	void SetDescription(FText Description);
+	
+	FText GetTitle();
 
 	FButtonClicked BeforeCutsceneClicked;
 	FButtonClicked AfterCutsceneClicked;

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Widgets/Game/PauseMenu.h"
+#include "UI/Widgets/Game/Menus/PauseMenu.h"
 
 #include "Components/Button.h"
 
@@ -11,6 +11,12 @@ void UPauseMenu::NativeOnInitialized()
 	BTN_Options->OnClicked.AddDynamic(this, &UPauseMenu::OnOptionsClicked);
 	BTN_MainMenu->OnClicked.AddDynamic(this, &UPauseMenu::OnMainMenuClicked);
 	BTN_Exit->OnClicked.AddDynamic(this, &UPauseMenu::OnExitClicked);
+}
+
+void UPauseMenu::CloseMenu_Implementation()
+{
+	UE_LOG(LogTemp, Error, TEXT("UPauseMenu::CloseMenu No blueprint implementation exists for function"));
+	RemoveFromParent();
 }
 
 void UPauseMenu::OnOptionsClicked()

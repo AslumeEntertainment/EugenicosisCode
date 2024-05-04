@@ -36,6 +36,9 @@ protected:
 public:
 
 	virtual void NativeOnInitialized() override;
+	
+	UFUNCTION(BlueprintNativeEvent)
+	void CloseMenu();
 
 	FButtonClicked OptionsClicked;
 	FButtonClicked MainMenuClicked;
