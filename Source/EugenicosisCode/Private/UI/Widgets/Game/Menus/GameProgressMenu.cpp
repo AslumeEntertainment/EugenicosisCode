@@ -6,6 +6,8 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/PlayerController.h"
+
 #include "Components/CanvasPanel.h"
 #include "Components/Button.h"
 #include "Components/CanvasPanelSlot.h"
@@ -21,7 +23,6 @@ bool UGameProgressMenu::NativeOnDrop(const FGeometry& InGeometry, const FDragDro
 	Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
 
 	UDragWidget* DragWidgetResult = Cast<UDragWidget>(InOperation);
-
 	if (!IsValid(DragWidgetResult))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("UGameProgressMenu::NativeOnDrop DragWidgetResult == nullptr"))
@@ -33,14 +34,16 @@ bool UGameProgressMenu::NativeOnDrop(const FGeometry& InGeometry, const FDragDro
 
 	DragWidgetResult->ReferenceWidget->AddToViewport();
 	DragWidgetResult->ReferenceWidget->SetVisibility(ESlateVisibility::Visible);
-	
 	Canvas->AddChildToCanvas(DragWidgetResult->ReferenceWidget);
+
 	UCanvasPanelSlot* PanelSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(DragWidgetResult->ReferenceWidget);
 	if (!PanelSlot)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("UGameProgressMenu::NativeOnDrop PanelSlot == nullptr"))
 		return false;
 	}
 	PanelSlot->SetPosition(DragWindowOffsetResult);
+	PanelSlot->SetSize(DragWidgetResult->WidgetSize);
 
 	return true;
 }
@@ -57,7 +60,7 @@ void UGameProgressMenu::NativeConstruct()
 	}
 
 	ProgressTreeSlot->SetAnchors(FAnchors(0.5, 0.5));
-	ProgressTreeSlot->SetPosition(FVector2D(-900, -500));
+	ProgressTreeSlot->SetPosition(FVector2D(ProgressTreeSlot->GetSize() / -2));
 }
 
 void UGameProgressMenu::NativeOnInitialized()

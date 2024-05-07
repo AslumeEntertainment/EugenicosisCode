@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/DragDropOperation.h"
+#include "Components/PanelWidget.h"
 #include "DragWidget.generated.h"
 
 
@@ -18,5 +19,14 @@ public:
 	UUserWidget* ReferenceWidget;
 
 	UPROPERTY(EditAnywhere)
+	UPanelWidget* ParentWidget;
+
+	UPROPERTY(EditAnywhere)
+	FVector2D WidgetSize;
+
+	UPROPERTY(EditAnywhere)
 	FVector2D DragOffset;
+
+	UPROPERTY(EditAnywhere)
+	FVector2D StartingPosition;
 };

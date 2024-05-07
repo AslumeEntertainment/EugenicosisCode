@@ -16,18 +16,6 @@
 #include "Headers/UI/DragWidget.h"
 
 
-FEventReply UGameProgressTreeWidget::RedirectMouseDownToWidget(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
-{
-	FEventReply Reply;
-	Reply.NativeReply = NativeOnMouseButtonDown(InGeometry, InMouseEvent);
-	return Reply;
-}
-
-FReply UGameProgressTreeWidget::NativeOnPreviewMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
-{
-	return RedirectMouseDownToWidget(InGeometry, InMouseEvent).NativeReply;
-}
-
 FReply UGameProgressTreeWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
 	Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
@@ -44,7 +32,6 @@ void UGameProgressTreeWidget::NativeOnDragDetected(const FGeometry& InGeometry, 
 
 	DragDropOperation->ReferenceWidget = this;
 	DragDropOperation->DragOffset = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
-
 	DragDropOperation->DefaultDragVisual = this;
 	DragDropOperation->Pivot = EDragPivot::MouseDown;
 
@@ -54,7 +41,57 @@ void UGameProgressTreeWidget::NativeOnDragDetected(const FGeometry& InGeometry, 
 
 void UGameProgressTreeWidget::NativeOnDragLeave(const FDragDropEvent& DragDropEvent, UDragDropOperation* InOperation)
 {
+	UDragWidget* DragWidgetResult = Cast<UDragWidget>(InOperation);
+	if (!IsValid(DragWidgetResult))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UGameProgressTreeWidget::NativeOnDragLeave DragWidgetResult == nullptr"))
+		return;
+	}
+
+	UCanvasPanelSlot* PanelSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(this);
+	if (!PanelSlot)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UGameProgressTreeWidget::NativeOnDragLeave PanelSlot == nullptr"))
+		return;
+	}
+
+	DragWidgetResult->WidgetSize = PanelSlot->GetSize();
+	DragWidgetResult->StartingPosition = PanelSlot->GetPosition();
+	DragWidgetResult->ParentWidget = GetParent();
+
 	RemoveFromParent();
+}
+
+void UGameProgressTreeWidget::NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
+{
+	UDragWidget* DragWidgetResult = Cast<UDragWidget>(InOperation);
+	if (!IsValid(DragWidgetResult))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UGameProgressTreeWidget::NativeOnDragLeave DragWidgetResult == nullptr"))
+		return;
+	}
+
+	DragWidgetResult->ReferenceWidget->AddToViewport();
+	DragWidgetResult->ReferenceWidget->SetVisibility(ESlateVisibility::Visible);
+
+	UCanvasPanel* ParentCanvas = Cast<UCanvasPanel>(DragWidgetResult->ParentWidget);
+	if (!IsValid(ParentCanvas))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UGameProgressTreeWidget::NativeOnDragLeave ParentCanvas == nullptr"))
+		return;
+	}
+	ParentCanvas->AddChildToCanvas(DragWidgetResult->ReferenceWidget);
+
+	UCanvasPanelSlot* PanelSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(DragWidgetResult->ReferenceWidget);
+	if (!PanelSlot)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UGameProgressTreeWidget::NativeOnDragLeave PanelSlot == nullptr"))
+		return;
+	}
+	PanelSlot->SetPosition(DragWidgetResult->StartingPosition);
+	PanelSlot->SetSize(DragWidgetResult->WidgetSize);
+
+	UE_LOG(LogTemp, Warning, TEXT("Trying to drag the Progress Tree Widget outside the game viewport!"));
 }
 
 void UGameProgressTreeWidget::AddIconToCanvas(UWidget* Icon, FVector2D Position)
