@@ -109,6 +109,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Interaction, meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
 	float LowerReachPercent = 0.85;
 
+	UPROPERTY(EditDefaultsOnly, Category = Interaction)
+	UMaterialInterface* InteractionOverlayMaterial;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Periodic Generic Functions")
 	float GenericCallRate = 0.5f;
 

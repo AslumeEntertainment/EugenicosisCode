@@ -52,7 +52,7 @@ protected:
 	void ShowGameProgressMenu();
 
 	UFUNCTION()
-	void ShowGameProgressInfoWidget();
+	void ShowGameProgressInfoWidget(FText IconName);
 
 	UFUNCTION()
 	void ShowSettingsMenu();

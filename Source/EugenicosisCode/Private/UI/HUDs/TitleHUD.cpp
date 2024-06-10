@@ -7,11 +7,12 @@
 
 #include "Gamemodes/EGC_TitleGameMode.h"
 #include "Headers/SaveSystem/GameProgressDataStruct.h"
-#include "UI/Widgets/Game/TitleMenu.h"
-#include "UI/Widgets/Game/GameProgressMenu.h"
-#include "UI/Widgets/Game/GameProgressInfoWidget.h"
-#include "UI/Widgets/Game/GameProgressEntryIcon.h"
-#include "UI/Widgets/Game/SettingsMenu.h"
+#include "UI/Widgets/Game/Menus/TitleMenu.h"
+#include "UI/Widgets/Game/Menus/GameProgressMenu.h"
+#include "UI/Widgets/Game/GameProgressWidgets/GameProgressInfoWidget.h"
+#include "UI/Widgets/Game/GameProgressWidgets/GameProgressTreeWidget.h"
+#include "UI/Widgets/Game/GameProgressWidgets/GameProgressEntryIcon.h"
+#include "UI/Widgets/Game/Menus/SettingsMenu.h"
 
 void ATitleHUD::BeginPlay()
 {
@@ -48,7 +49,7 @@ void ATitleHUD::BeginPlay()
 	TitleMenu->QuitClicked.AddDynamic(GameMode, &AEGC_TitleGameMode::QuitGame);
 
 	GameProgressMenu->BackClicked.AddDynamic(this, &ATitleHUD::ShowTitleMenu);
-	GameProgressMenu->BackgroundClicked.AddDynamic(GameProgressInfoWidget, &UGameProgressInfoWidget::RemoveFromParent);
+	GameProgressMenu->GetProgressTree()->OnBackgroundPressed.AddDynamic(GameProgressInfoWidget, &UGameProgressInfoWidget::CloseInfo);
 
 	SettingsMenu->BackClicked.AddDynamic(this, &ATitleHUD::ShowTitleMenu);
 
@@ -97,14 +98,39 @@ void ATitleHUD::ShowGameProgressMenu()
 	GameProgressMenu->AddToViewport();
 }
 
-void ATitleHUD::ShowGameProgressInfoWidget()
+void ATitleHUD::ShowGameProgressInfoWidget(FText IconName)
 {
 	if (!PlayerOwner || !GameProgressInfoWidget)
 	{
 		return;
 	}
 
-	GameProgressInfoWidget->RemoveFromParent();
+	AEGC_TitleGameMode* GameMode = Cast<AEGC_TitleGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (!IsValid(GameMode))
+	{
+		UE_LOG(LogTemp, Error, TEXT("ATitleHUD::ShowGameProgressInfoWidget IsValid(GameMode) == false"));
+		return;
+	}
+
+	FGameProgressDataStruct* ProgressEntryData = GameMode->GetGameProgressionEntryByName(IconName);
+	if (ProgressEntryData == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ATitleHUD::ShowGameProgressInfoWidget ProgressEntryData == nullptr"));
+		return;
+	}
+
+	if (GameProgressInfoWidget->IsInViewport() && ProgressEntryData->Title.CompareTo(GameProgressInfoWidget->GetTitle()) == 0)
+	{
+		return;
+	}
+
+	if (GameProgressInfoWidget->IsInViewport())
+	{
+		GameProgressInfoWidget->RemoveFromParent();
+	}
+
+	GameProgressInfoWidget->SetTitle(ProgressEntryData->Title);
+	GameProgressInfoWidget->SetDescription(ProgressEntryData->Description);
 	GameProgressInfoWidget->AddToViewport();
 }
 

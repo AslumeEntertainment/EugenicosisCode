@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Headers/UI/ButtonDelegates.h"
 #include "GameProgressTreeWidget.generated.h"
 
 class UCanvasPanel;
@@ -25,6 +26,11 @@ protected:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UGameProgressEntryIcon* RootIcon;
 
+	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
+	void NativeOnDragLeave(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+	virtual void NativeOnDragCancelled(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+
 public:
 
 	void AddIconToCanvas(UWidget* Icon, FVector2D Position);
@@ -38,4 +44,6 @@ public:
 
 	UClass* GetIconClass();
 	UClass* GetConnectingLineWidgetClass();
+
+	FButtonClicked OnBackgroundPressed;
 };

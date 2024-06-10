@@ -21,8 +21,8 @@ protected:
 	UFUNCTION()
 	void OnBackClicked();
 
-	UFUNCTION()
-	void OnBackgroundClicked();
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UCanvasPanel* Canvas;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UGameProgressTreeWidget* GameProgressTree;
@@ -30,8 +30,8 @@ protected:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UButton* BTN_Back;
 
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
-	UButton* BTN_Background;
+	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+	virtual void NativeConstruct() override;
 
 public:
 
@@ -41,7 +41,7 @@ public:
 	void DrawTreeLines(TArray<struct FGameProgressDataStruct*> GameProgressData);
 
 	TArray<UWidget*> GetEntryIcons();
+	UGameProgressTreeWidget* GetProgressTree();
 
 	FButtonClicked BackClicked;
-	FButtonClicked BackgroundClicked;
 };

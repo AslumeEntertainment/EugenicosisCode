@@ -126,6 +126,15 @@ void AEGC_Character::CheckForInteractables(FHitResult HitResult)
 
 	if (HitActor == nullptr)
 	{
+		if (FocusedInteractableObject && Cast<AActor>(FocusedInteractableObject)->GetComponentByClass(UMeshComponent::StaticClass()))
+		{
+			UActorComponent* InteractableMeshComponent = Cast<AActor>(FocusedInteractableObject)->GetComponentByClass(UMeshComponent::StaticClass());
+			if (Cast<UMeshComponent>(InteractableMeshComponent))
+			{
+				Cast<UMeshComponent>(InteractableMeshComponent)->SetOverlayMaterial(nullptr);
+			}
+		}
+		
 		FocusedInteractableObject = nullptr;
 		OnInteraction.Broadcast(FText());
 		return;
@@ -138,10 +147,26 @@ void AEGC_Character::CheckForInteractables(FHitResult HitResult)
 	}
 	if (InteractableActor == nullptr)
 	{
+		if (FocusedInteractableObject && Cast<AActor>(FocusedInteractableObject)->GetComponentByClass(UMeshComponent::StaticClass()))
+		{
+			UActorComponent* InteractableMeshComponent = Cast<AActor>(FocusedInteractableObject)->GetComponentByClass(UMeshComponent::StaticClass());
+			if (Cast<UMeshComponent>(InteractableMeshComponent))
+			{
+				Cast<UMeshComponent>(InteractableMeshComponent)->SetOverlayMaterial(nullptr);
+			}
+		}
+
 		FocusedInteractableObject = nullptr;
 		OnInteraction.Broadcast(FText());
 		return;
 	}
+
+	UMeshComponent* HitMeshComponent = Cast<UMeshComponent>(HitComponent);
+	if (HitMeshComponent != nullptr)
+	{
+		HitMeshComponent->SetOverlayMaterial(InteractionOverlayMaterial);
+	}
+
 	FocusedInteractableObject = HitActor;
 	OnInteraction.Broadcast(InteractableActor->Execute_DisplayInteractText(HitActor));
 }

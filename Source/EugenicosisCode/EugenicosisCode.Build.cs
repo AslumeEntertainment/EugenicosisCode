@@ -39,6 +39,7 @@ public class EugenicosisCode : ModuleRules
 				"Slate",
 				"SlateCore",
                 "EnhancedInput",
+				"InputCore",
 				"UMG",
                 "SmartObjectsModule", 
 				"GameplayBehaviorsModule",

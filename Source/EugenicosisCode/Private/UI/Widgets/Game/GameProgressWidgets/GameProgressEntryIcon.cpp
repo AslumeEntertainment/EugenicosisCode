@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Widgets/Game/GameProgressEntryIcon.h"
+#include "UI/Widgets/Game/GameProgressWidgets/GameProgressEntryIcon.h"
 
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
@@ -14,7 +14,7 @@ void UGameProgressEntryIcon::NativeOnInitialized()
 
 void UGameProgressEntryIcon::OnIconClicked()
 {
-	IconClicked.Broadcast();
+	IconClicked.Broadcast(TXT_EntryName->GetText());
 }
 
 void UGameProgressEntryIcon::SetEntryName(FText EntryName)

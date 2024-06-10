@@ -39,6 +39,8 @@ public:
 
 	TArray<struct FGameProgressDataStruct*> GetGameProgressionDataByLevel(int Level);
 
+	struct FGameProgressDataStruct* GetGameProgressionEntryByName(FText EntryName);
+
 	int GetGameProgressDataMaxLevel();
 
 };
