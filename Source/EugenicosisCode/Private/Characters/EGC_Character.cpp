@@ -55,7 +55,6 @@ void AEGC_Character::PossessedBy(AController* NewController)
 
 void AEGC_Character::GenericPeriodicFunctionCalls()
 {
-	
 	UpdateEnergy();
 }
 
@@ -64,6 +63,18 @@ void AEGC_Character::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	EmitInteractionChecker();
+
+	if (!IsValid(FocusedSoundEmitter))
+	{
+		return;
+	}
+
+	FVector PlayerLocation = GetActorLocation();
+	FVector SoundEmitterLocation = FocusedSoundEmitter->GetActorLocation();
+	float D = sqrt( FMath::Pow(SoundEmitterLocation.X - PlayerLocation.X, 2) + FMath::Pow(SoundEmitterLocation.Y - PlayerLocation.Y, 2) + FMath::Pow(SoundEmitterLocation.Z - PlayerLocation.Z, 2));
+	D = FMath::Abs(D);
+	
+	GEngine->AddOnScreenDebugMessage(10, 1, FColor::Green, FString::Printf(TEXT("Sound Emitter found %.2f meters away!"), D / 100));
 }
 
 void AEGC_Character::EmitInteractionChecker()
@@ -308,9 +319,11 @@ void AEGC_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AEGC_Character::Interact);
 	EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &AEGC_Character::ToggleRun);
 	EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Triggered, this, &AEGC_Character::TogglePause);
-	
-	
+}
 
+void AEGC_Character::SetFocusedSoundEmitter(AActor* FoundSoundEmitter)
+{
+	FocusedSoundEmitter = FoundSoundEmitter;
 }
 
 

@@ -29,11 +29,13 @@ public:
 private:
 	bool bIsMoving = false;
 	bool bIsRunning = false;
+	bool bIsSeeking = false;
 	bool bCanInteract = true;
 
 	FTimerHandle GenericTimerHandle;
 
 	UObject* FocusedInteractableObject;
+	AActor* FocusedSoundEmitter;
 
 	double CameraHeight;
 	double InteractionBoundsSlope;
@@ -151,6 +153,8 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+
+	void SetFocusedSoundEmitter(AActor* FoundSoundEmitter);
 
 	FEnergyBlurSignature OnEnergyRateChanged;
 	FPauseNotifySignature PauseNotifyDelegate;
