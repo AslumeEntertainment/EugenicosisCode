@@ -8,7 +8,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSoundEmitterLostSignature);
 
-UCLASS(ClassGroup = (EGC_Components))
+UCLASS(ClassGroup = (EGC_Components), meta = (BlueprintSpawnableComponent))
 class EUGENICOSISCODE_API USoundEmitterSphereComponent : public USphereComponent
 {
 	GENERATED_BODY()
@@ -16,11 +16,11 @@ class EUGENICOSISCODE_API USoundEmitterSphereComponent : public USphereComponent
 public:
 	USoundEmitterSphereComponent();
 
+	FTimerHandle SoundEmitterLostTimer;
+
 	FSoundEmitterLostSignature OnSoundEmitterLost;
 
 private:
-	FTimerHandle SoundEmitterLostTimer;
-
 	UFUNCTION()
 	void SoundEmitterLost();
 

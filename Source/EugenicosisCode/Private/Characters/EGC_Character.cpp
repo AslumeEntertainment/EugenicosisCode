@@ -5,8 +5,10 @@
 
 #include "Gamemodes/EGC_GameModeBase.h"
 #include "Interactables/Interactable.h"
+#include "Components/SoundEmitterSphereComponent.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -14,6 +16,7 @@
 #include "Engine/LocalPlayer.h"
 #include "EugenicosisCode.h"
 #include "Camera/CameraComponent.h"
+#include "Components/AudioComponent.h"
 
 
 
@@ -63,18 +66,6 @@ void AEGC_Character::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	EmitInteractionChecker();
-
-	if (!IsValid(FocusedSoundEmitter))
-	{
-		return;
-	}
-
-	FVector PlayerLocation = GetActorLocation();
-	FVector SoundEmitterLocation = FocusedSoundEmitter->GetActorLocation();
-	float D = sqrt( FMath::Pow(SoundEmitterLocation.X - PlayerLocation.X, 2) + FMath::Pow(SoundEmitterLocation.Y - PlayerLocation.Y, 2) + FMath::Pow(SoundEmitterLocation.Z - PlayerLocation.Z, 2));
-	D = FMath::Abs(D);
-	
-	GEngine->AddOnScreenDebugMessage(10, 1, FColor::Green, FString::Printf(TEXT("Sound Emitter found %.2f meters away!"), D / 100));
 }
 
 void AEGC_Character::EmitInteractionChecker()
@@ -257,11 +248,31 @@ void AEGC_Character::TogglePause(const FInputActionValue& Value)
 	if (GameMode->bIsGamePaused())
 	{
 		ResetCharacterMovement();
-		GetWorldTimerManager().ClearTimer(GenericTimerHandle);
+		GetWorldTimerManager().PauseTimer(GenericTimerHandle);
+
+		/*
+		if (!IsValid(FocusedSoundEmitter))
+		{
+			return;
+		}
+
+		USoundEmitterSphereComponent* SoundEmitterComp = Cast<USoundEmitterSphereComponent>(FocusedSoundEmitter->GetComponentByClass(USoundEmitterSphereComponent::StaticClass()));
+		GetWorldTimerManager().PauseTimer(SoundEmitterComp->SoundEmitterLostTimer);
+		*/
 	}
 	else
 	{
-		GetWorldTimerManager().SetTimer(GenericTimerHandle, this, &AEGC_Character::GenericPeriodicFunctionCalls, GenericCallRate, true, 0.01f);
+		GetWorldTimerManager().UnPauseTimer(GenericTimerHandle);
+
+		/*
+		if (!IsValid(FocusedSoundEmitter))
+		{
+			return;
+		}
+
+		USoundEmitterSphereComponent* SoundEmitterComp = Cast<USoundEmitterSphereComponent>(FocusedSoundEmitter->GetComponentByClass(USoundEmitterSphereComponent::StaticClass()));
+		GetWorldTimerManager().UnPauseTimer(SoundEmitterComp->SoundEmitterLostTimer);
+		*/
 	}
 }
 
@@ -319,6 +330,40 @@ void AEGC_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AEGC_Character::Interact);
 	EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &AEGC_Character::ToggleRun);
 	EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Triggered, this, &AEGC_Character::TogglePause);
+}
+
+void AEGC_Character::OnFocusedSoundEmitterActive(float InEnvelopeData)
+{
+	if (!IsValid(FocusedSoundEmitter))
+	{
+		UE_LOG(LogCharacter, Error, TEXT("AEGC_Character::OnFocusedSoundEmitterActive IsValid(FocusedSoundEmitter) == false"));
+		return;
+	}
+
+	FVector PlayerLocation = GetActorLocation();
+	FVector SoundEmitterLocation = FocusedSoundEmitter->GetActorLocation();
+
+	float Distance = FMath::Sqrt(FMath::Pow(SoundEmitterLocation.X - PlayerLocation.X, 2) + FMath::Pow(SoundEmitterLocation.Y - PlayerLocation.Y, 2) + FMath::Pow(SoundEmitterLocation.Z - PlayerLocation.Z, 2));
+	Distance = FMath::Abs(Distance);
+
+	FVector CameraForwardVector = UKismetMathLibrary::GetForwardVector(CameraComponent->GetComponentRotation());
+	FVector Direction = UKismetMathLibrary::GetDirectionUnitVector((PlayerLocation + CameraForwardVector), SoundEmitterLocation);
+
+	GEngine->AddOnScreenDebugMessage(10, 1, FColor::Green, FString::Printf(TEXT("Sound Emitter found %.2f meters away!"), Distance / 100));
+	GEngine->AddOnScreenDebugMessage(11, 1, FColor::Green, FString::Printf(TEXT("Sound Emitter direction: %s"), *Direction.ToString()));
+	GEngine->AddOnScreenDebugMessage(12, 1, FColor::Green, FString::Printf(TEXT("Player facing direction: %s"), *CameraForwardVector.ToString()));
+
+	UAudioComponent* SoundEmitterAudioComp = Cast<UAudioComponent>(FocusedSoundEmitter->GetComponentByClass(UAudioComponent::StaticClass()));
+
+	if (!IsValid(SoundEmitterAudioComp))
+	{
+		UE_LOG(LogCharacter, Error, TEXT("AEGC_Character::OnFocusedSoundEmitterActive IsValid(SoundEmitterAudioComp) == false"));
+		return;
+	}
+
+	float DistanceVolumeMultiplier = 1 - Distance / SoundEmitterAudioComp->Sound->MaxDistance;
+
+	OnFocusedSoundEmitterEnvelopDataUpdated.ExecuteIfBound(DistanceVolumeMultiplier * InEnvelopeData); 
 }
 
 void AEGC_Character::SetFocusedSoundEmitter(AActor* FoundSoundEmitter)

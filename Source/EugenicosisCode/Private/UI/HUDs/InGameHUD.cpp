@@ -6,6 +6,7 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 
 #include "Gamemodes/EGC_GameModeBase.h"
+#include "Characters/EGC_Character.h"
 #include "UI/Widgets/Game/OverlayWidgetBase.h"
 #include "UI/Widgets/Game/Menus/PauseMenu.h"
 #include "UI/Widgets/Game/Menus/SettingsMenu.h"
@@ -27,6 +28,13 @@ void AInGameHUD::BeginPlay()
 		return;
 	}
 
+	AEGC_Character* PlayerPawn = Cast<AEGC_Character>(PlayerOwner->GetPawn());
+	if (!IsValid(PlayerPawn))
+	{
+		UE_LOG(LogTemp, Error, TEXT("AInGameHUD::BeginPlay IsValid(PlayerPawn) == false"));
+		return;
+	}
+
 	OverlayWidget = CreateWidget<UOverlayWidgetBase>(UGameplayStatics::GetGameInstance(GetWorld()), OverlayWidgetClass);
 	PauseMenu = CreateWidget<UPauseMenu>(UGameplayStatics::GetGameInstance(GetWorld()), PauseMenuClass);
 	SettingsMenu = CreateWidget<USettingsMenu>(UGameplayStatics::GetGameInstance(GetWorld()), SettingsMenuClass);
@@ -36,6 +44,8 @@ void AInGameHUD::BeginPlay()
 	PauseMenu->ExitClicked.AddDynamic(GameMode, &AEGC_GameModeBase::QuitGame);
 
 	SettingsMenu->BackClicked.AddDynamic(this, &AInGameHUD::ShowPauseMenu);
+
+	PlayerPawn->OnFocusedSoundEmitterEnvelopDataUpdated.BindDynamic(OverlayWidget, &UOverlayWidgetBase::SetVolumeLevel);
 
 	ShowOverlayWidget();
 }

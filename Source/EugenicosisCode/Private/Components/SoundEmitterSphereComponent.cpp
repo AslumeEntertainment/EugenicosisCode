@@ -25,6 +25,7 @@ void USoundEmitterSphereComponent::OnPlayerBeginOverlap(UPrimitiveComponent* Ove
 		return;
 	}
 
+	/*
 	if (!IsValid(GetWorld()))
 	{
 		UE_LOG(LogTemp, Error, TEXT("USoundEmitterSphereComponent::OnPlayerBeginOverlap IsValid(GetWorld()) == false"));
@@ -32,6 +33,7 @@ void USoundEmitterSphereComponent::OnPlayerBeginOverlap(UPrimitiveComponent* Ove
 	}
 
 	GetWorld()->GetTimerManager().ClearTimer(SoundEmitterLostTimer);
+	*/
 	Player->SetFocusedSoundEmitter(GetOwner());
 }
 
@@ -44,6 +46,7 @@ void USoundEmitterSphereComponent::OnPlayerEndOverlap(UPrimitiveComponent* Overl
 		return;
 	}
 
+	/*
 	if (!IsValid(GetWorld()))
 	{
 		UE_LOG(LogTemp, Error, TEXT("USoundEmitterSphereComponent::OnPlayerEndOverlap IsValid(GetWorld()) == false"));
@@ -51,5 +54,6 @@ void USoundEmitterSphereComponent::OnPlayerEndOverlap(UPrimitiveComponent* Overl
 	}
 	
 	GetWorld()->GetTimerManager().SetTimer(SoundEmitterLostTimer, this, &USoundEmitterSphereComponent::SoundEmitterLost, 10, false);
+	*/
 	Player->SetFocusedSoundEmitter(nullptr);
 }

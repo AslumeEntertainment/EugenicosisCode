@@ -29,7 +29,6 @@ public:
 private:
 	bool bIsMoving = false;
 	bool bIsRunning = false;
-	bool bIsSeeking = false;
 	bool bCanInteract = true;
 
 	FTimerHandle GenericTimerHandle;
@@ -154,9 +153,13 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintCallable)
+	void OnFocusedSoundEmitterActive(float InEnvelopeData);
+
 	void SetFocusedSoundEmitter(AActor* FoundSoundEmitter);
 
 	FEnergyBlurSignature OnEnergyRateChanged;
+	FEnergyBlurSignature OnFocusedSoundEmitterEnvelopDataUpdated;
 	FPauseNotifySignature PauseNotifyDelegate;
 	FInteractingSignature OnInteraction;
 
