@@ -26,6 +26,6 @@ void UOverlayWidgetBase::SetShading(float Percentage)
 
 void UOverlayWidgetBase::SetVolumeLevel(float Percentage)
 {
-	GEngine->AddOnScreenDebugMessage(101, 1, FColor::Cyan, FString::Printf(TEXT("Volume: %f"), Percentage));
+	GEngine->AddOnScreenDebugMessage(101, 1, FColor::Cyan, FString::Printf(TEXT("Displayed Volume: %f"), Percentage));
 	VolumeMeter->SetPercent(Percentage);
 }

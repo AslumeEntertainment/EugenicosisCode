@@ -343,18 +343,16 @@ void AEGC_Character::OnFocusedSoundEmitterActive(float InEnvelopeData)
 	FVector PlayerLocation = GetActorLocation();
 	FVector SoundEmitterLocation = FocusedSoundEmitter->GetActorLocation();
 
-	float Distance = FMath::Sqrt(FMath::Pow(SoundEmitterLocation.X - PlayerLocation.X, 2) + FMath::Pow(SoundEmitterLocation.Y - PlayerLocation.Y, 2) + FMath::Pow(SoundEmitterLocation.Z - PlayerLocation.Z, 2));
-	Distance = FMath::Abs(Distance);
-
-	FVector CameraForwardVector = UKismetMathLibrary::GetForwardVector(CameraComponent->GetComponentRotation());
-	FVector Direction = UKismetMathLibrary::GetDirectionUnitVector((PlayerLocation + CameraForwardVector), SoundEmitterLocation);
+	FVector Direction = UKismetMathLibrary::GetDirectionUnitVector((PlayerLocation), SoundEmitterLocation);
+	float Distance = UKismetMathLibrary::Vector_Distance(PlayerLocation, SoundEmitterLocation);
+	float HorizontalDirectionValue = UKismetMathLibrary::Dot_VectorVector(CameraComponent->GetRightVector(), Direction);
+	float VerticalDirectionValue = UKismetMathLibrary::Dot_VectorVector(CameraComponent->GetUpVector(), Direction) * -1; //We multiply this value by -1 because of UE's coordinate system
 
 	GEngine->AddOnScreenDebugMessage(10, 1, FColor::Green, FString::Printf(TEXT("Sound Emitter found %.2f meters away!"), Distance / 100));
-	GEngine->AddOnScreenDebugMessage(11, 1, FColor::Green, FString::Printf(TEXT("Sound Emitter direction: %s"), *Direction.ToString()));
-	GEngine->AddOnScreenDebugMessage(12, 1, FColor::Green, FString::Printf(TEXT("Player facing direction: %s"), *CameraForwardVector.ToString()));
+	GEngine->AddOnScreenDebugMessage(11, 1, FColor::Green, FString::Printf(TEXT("Horizontal direction value: %f"), HorizontalDirectionValue));
+	GEngine->AddOnScreenDebugMessage(12, 1, FColor::Green, FString::Printf(TEXT("Vertical direction value: %f"), VerticalDirectionValue));
 
 	UAudioComponent* SoundEmitterAudioComp = Cast<UAudioComponent>(FocusedSoundEmitter->GetComponentByClass(UAudioComponent::StaticClass()));
-
 	if (!IsValid(SoundEmitterAudioComp))
 	{
 		UE_LOG(LogCharacter, Error, TEXT("AEGC_Character::OnFocusedSoundEmitterActive IsValid(SoundEmitterAudioComp) == false"));
