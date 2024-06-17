@@ -249,30 +249,10 @@ void AEGC_Character::TogglePause(const FInputActionValue& Value)
 	{
 		ResetCharacterMovement();
 		GetWorldTimerManager().PauseTimer(GenericTimerHandle);
-
-		/*
-		if (!IsValid(FocusedSoundEmitter))
-		{
-			return;
-		}
-
-		USoundEmitterSphereComponent* SoundEmitterComp = Cast<USoundEmitterSphereComponent>(FocusedSoundEmitter->GetComponentByClass(USoundEmitterSphereComponent::StaticClass()));
-		GetWorldTimerManager().PauseTimer(SoundEmitterComp->SoundEmitterLostTimer);
-		*/
 	}
 	else
 	{
 		GetWorldTimerManager().UnPauseTimer(GenericTimerHandle);
-
-		/*
-		if (!IsValid(FocusedSoundEmitter))
-		{
-			return;
-		}
-
-		USoundEmitterSphereComponent* SoundEmitterComp = Cast<USoundEmitterSphereComponent>(FocusedSoundEmitter->GetComponentByClass(USoundEmitterSphereComponent::StaticClass()));
-		GetWorldTimerManager().UnPauseTimer(SoundEmitterComp->SoundEmitterLostTimer);
-		*/
 	}
 }
 
@@ -361,12 +341,19 @@ void AEGC_Character::OnFocusedSoundEmitterActive(float InEnvelopeData)
 
 	float DistanceVolumeMultiplier = 1 - Distance / SoundEmitterAudioComp->Sound->MaxDistance;
 
-	OnFocusedSoundEmitterEnvelopDataUpdated.ExecuteIfBound(DistanceVolumeMultiplier * InEnvelopeData); 
+	OnFocusedSoundEmitterEnvelopDataUpdated.ExecuteIfBound(DistanceVolumeMultiplier * InEnvelopeData, HorizontalDirectionValue, VerticalDirectionValue); 
 }
 
 void AEGC_Character::SetFocusedSoundEmitter(AActor* FoundSoundEmitter)
 {
 	FocusedSoundEmitter = FoundSoundEmitter;
+	OnFocusedSoundEmitterLost.Broadcast();
+	
+	if (!IsValid(FocusedSoundEmitter))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("No Sound Emitter currently in focus!"));
+		//OnFocusedSoundEmitterLost.Broadcast();
+	}
 }
 
 

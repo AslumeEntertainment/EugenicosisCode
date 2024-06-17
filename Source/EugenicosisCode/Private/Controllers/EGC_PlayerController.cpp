@@ -6,9 +6,62 @@
 #include "Gamemodes/EGC_GameModeBase.h"
 #include "UI/HUDs/InGameHUD.h"
 #include "Characters/EGC_Character.h"
+#include "Components/SoundEmitterComponent.h"
+#include "Perception/AIPerceptionComponent.h"
+#include "Perception/AISenseConfig_Hearing.h"
+#include "Perception/AIPerceptionStimuliSourceComponent.h"
 
 #include "EnhancedInputSubsystems.h"
 
+
+AEGC_PlayerController::AEGC_PlayerController()
+{
+	PerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("PerceptionComponent"));
+
+	Hearing = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("Hearing Config"));
+	if (Hearing) 
+	{
+		Hearing->HearingRange = 40000;
+		Hearing->DetectionByAffiliation.bDetectEnemies = true;
+		Hearing->DetectionByAffiliation.bDetectFriendlies = true;
+		Hearing->DetectionByAffiliation.bDetectNeutrals = true;
+		Hearing->SetMaxAge(5);
+
+		PerceptionComponent->SetDominantSense(*Hearing->GetSenseImplementation());
+		PerceptionComponent->OnPerceptionUpdated.AddDynamic(this, &AEGC_PlayerController::OnHearingUpdated);
+		PerceptionComponent->ConfigureSense(*Hearing);
+	}
+}
+
+void AEGC_PlayerController::OnHearingUpdated(TArray<AActor*> const& UpdatedActors)
+{
+	AActor* LatestInstigator = UpdatedActors.Last();
+	USoundEmitterComponent* SoundEmitterComponent = Cast<USoundEmitterComponent>(LatestInstigator->GetComponentByClass(USoundEmitterComponent::StaticClass()));
+	if (!IsValid(SoundEmitterComponent))
+	{
+		return;
+	}
+
+	AEGC_Character* PlayerPawn = Cast<AEGC_Character>(GetPawn());
+	if (!IsValid(PlayerPawn))
+	{
+		UE_LOG(LogTemp, Error, TEXT("AEGC_PlayerController::OnHearingUpdated IsValid(PlayerPawn) == false"));
+		return;
+	}
+
+	PlayerPawn->SetFocusedSoundEmitter(LatestInstigator);
+	SoundEmitterComponent->OnAmplitudeEnvelopeDataUpdated.BindDynamic(PlayerPawn, &AEGC_Character::OnFocusedSoundEmitterActive);
+
+	if (LatestInstigator->ActorHasTag(FName("Big")))
+	{
+		GEngine->AddOnScreenDebugMessage(100, 5, FColor::Orange, TEXT("Notification sound is being detected!"));
+	}
+
+	if (LatestInstigator->ActorHasTag(FName("Chungus")))
+	{
+		GEngine->AddOnScreenDebugMessage(100, 5, FColor::Orange, TEXT("VineBoom sound is being detected!"));
+	}
+}
 
 void AEGC_PlayerController::SwitchInputMappingContext()
 {

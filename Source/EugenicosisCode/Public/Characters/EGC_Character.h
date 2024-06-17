@@ -14,6 +14,7 @@ class UCameraShakeBase;
 struct FInputActionValue;
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FEnergyBlurSignature, float, Percentage);
+DECLARE_DYNAMIC_DELEGATE_ThreeParams(FVisualSoundSignature, float, VolumePercentage, float, HorizontalDirectionValue, float, VerticalDirectionValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInteractingSignature, FText, ActionText);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPauseNotifySignature);
 
@@ -159,8 +160,9 @@ public:
 	void SetFocusedSoundEmitter(AActor* FoundSoundEmitter);
 
 	FEnergyBlurSignature OnEnergyRateChanged;
-	FEnergyBlurSignature OnFocusedSoundEmitterEnvelopDataUpdated;
+	FVisualSoundSignature OnFocusedSoundEmitterEnvelopDataUpdated;
 	FPauseNotifySignature PauseNotifyDelegate;
+	FPauseNotifySignature OnFocusedSoundEmitterLost;
 	FInteractingSignature OnInteraction;
 
 };

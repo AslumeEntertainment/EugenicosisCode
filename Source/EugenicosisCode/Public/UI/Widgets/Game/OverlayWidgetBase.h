@@ -24,6 +24,21 @@ protected:
 	UBorder* BackgroundShading;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UBorder* VisualSoundBorder_Full;
+
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UBorder* VisualSoundBorder_Down;
+
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UBorder* VisualSoundBorder_Right;
+
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UBorder* VisualSoundBorder_Up;
+
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UBorder* VisualSoundBorder_Left;
+
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	UProgressBar* VolumeMeter;
 
 	UPROPERTY(EditAnywhere)
@@ -37,7 +52,10 @@ protected:
 public:
 
 	UFUNCTION()
-	void SetVolumeLevel(float Percentage);
+	void SetVolumeLevel(float Percentage, float HorizontalDirectionValue, float VerticalDirectionValue);
+
+	UFUNCTION()
+	void ResetVolumeLevel();
 
 	void SetBlur(float Percentage);
 	void SetShading(float Percentage);

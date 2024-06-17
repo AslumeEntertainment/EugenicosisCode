@@ -46,6 +46,7 @@ void AInGameHUD::BeginPlay()
 	SettingsMenu->BackClicked.AddDynamic(this, &AInGameHUD::ShowPauseMenu);
 
 	PlayerPawn->OnFocusedSoundEmitterEnvelopDataUpdated.BindDynamic(OverlayWidget, &UOverlayWidgetBase::SetVolumeLevel);
+	PlayerPawn->OnFocusedSoundEmitterLost.AddDynamic(OverlayWidget, &UOverlayWidgetBase::ResetVolumeLevel);
 
 	ShowOverlayWidget();
 }
