@@ -18,7 +18,6 @@ public:
 
 	AEGC_PlayerController();
 
-
 private:
 
 	class UAISenseConfig_Hearing* Hearing;

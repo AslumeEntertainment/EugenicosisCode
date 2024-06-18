@@ -16,7 +16,7 @@ void USoundEmitterComponent::OnSoundPlayed(const USoundWave* SoundWave, const fl
 	float OutEnvelopeData;
 	if (GetCookedEnvelopeData(OutEnvelopeData))
 	{
-		OnAmplitudeEnvelopeDataUpdated.ExecuteIfBound(OutEnvelopeData);
+		OnAmplitudeEnvelopeDataUpdated.ExecuteIfBound(OutEnvelopeData, GetOwner());
 	}
 
 	return;

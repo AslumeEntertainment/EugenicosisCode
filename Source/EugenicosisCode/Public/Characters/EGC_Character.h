@@ -35,7 +35,7 @@ private:
 	FTimerHandle GenericTimerHandle;
 
 	UObject* FocusedInteractableObject;
-	AActor* FocusedSoundEmitter;
+	//AActor* FocusedSoundEmitter;
 
 	double CameraHeight;
 	double InteractionBoundsSlope;
@@ -90,11 +90,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
 	float MaxWalkSpeed = 300;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
-	float MaxEnergy = 600;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Movement)
+	float MaxEnergy = 200;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
-	float CurrentEnergy = 600;
+	UPROPERTY(BlueprintReadOnly, Category = Movement)
+	float CurrentEnergy;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
 	float EnergyRechargeRate = 1;
@@ -155,14 +155,14 @@ public:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION(BlueprintCallable)
-	void OnFocusedSoundEmitterActive(float InEnvelopeData);
+	void OnFocusedSoundEmitterActive(float InEnvelopeData, AActor* SoundEmitter);
 
-	void SetFocusedSoundEmitter(AActor* FoundSoundEmitter);
+	//void SetFocusedSoundEmitter(AActor* FoundSoundEmitter);
 
 	FEnergyBlurSignature OnEnergyRateChanged;
 	FVisualSoundSignature OnFocusedSoundEmitterEnvelopDataUpdated;
 	FPauseNotifySignature PauseNotifyDelegate;
-	FPauseNotifySignature OnFocusedSoundEmitterLost;
+	FPauseNotifySignature OnFocusedSoundEmitterChanged;
 	FInteractingSignature OnInteraction;
 
 };

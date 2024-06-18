@@ -5,7 +5,7 @@
 
 #include "Gamemodes/EGC_GameModeBase.h"
 #include "Interactables/Interactable.h"
-#include "Components/SoundEmitterSphereComponent.h"
+#include "Components/SoundEmitterComponent.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -16,8 +16,6 @@
 #include "Engine/LocalPlayer.h"
 #include "EugenicosisCode.h"
 #include "Camera/CameraComponent.h"
-#include "Components/AudioComponent.h"
-
 
 
 // Sets default values
@@ -33,6 +31,8 @@ AEGC_Character::AEGC_Character()
 	CameraComponent->SetupAttachment(GetRootComponent());
 	CameraComponent->SetRelativeLocation(FVector(-39.56f, 1.75f, 60.f));
 	CameraComponent->bUsePawnControlRotation = true;
+
+	CurrentEnergy = MaxEnergy;
 }
 
 void AEGC_Character::BeginPlay()
@@ -176,8 +176,9 @@ void AEGC_Character::CheckForInteractables(FHitResult HitResult)
 void AEGC_Character::UpdateEnergy()
 {
 	CurrentEnergy += bIsRunning ? SprintEnergyDrainRate : EnergyRechargeRate;
-
 	CurrentEnergy = FMath::Clamp(CurrentEnergy, 0, MaxEnergy);
+
+	GEngine->AddOnScreenDebugMessage(104, 1, FColor::Yellow, FString::Printf(TEXT("Current energy: %f"), CurrentEnergy));
 
 	if ( (CurrentEnergy / MaxEnergy) > EnergyToBlurThreshold)
 	{
@@ -186,7 +187,6 @@ void AEGC_Character::UpdateEnergy()
 	}
 
 	OnEnergyRateChanged.ExecuteIfBound(CurrentEnergy / (MaxEnergy * EnergyToBlurThreshold));
-
 }
 
 void AEGC_Character::Move(const FInputActionValue& Value)
@@ -312,16 +312,16 @@ void AEGC_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Triggered, this, &AEGC_Character::TogglePause);
 }
 
-void AEGC_Character::OnFocusedSoundEmitterActive(float InEnvelopeData)
+void AEGC_Character::OnFocusedSoundEmitterActive(float InEnvelopeData, AActor* SoundEmitter)
 {
-	if (!IsValid(FocusedSoundEmitter))
+	if (!IsValid(SoundEmitter))
 	{
-		UE_LOG(LogCharacter, Error, TEXT("AEGC_Character::OnFocusedSoundEmitterActive IsValid(FocusedSoundEmitter) == false"));
+		UE_LOG(LogCharacter, Error, TEXT("AEGC_Character::OnFocusedSoundEmitterActive IsValid(SoundEmitter) == false"));
 		return;
 	}
 
 	FVector PlayerLocation = GetActorLocation();
-	FVector SoundEmitterLocation = FocusedSoundEmitter->GetActorLocation();
+	FVector SoundEmitterLocation = SoundEmitter->GetActorLocation();
 
 	FVector Direction = UKismetMathLibrary::GetDirectionUnitVector((PlayerLocation), SoundEmitterLocation);
 	float Distance = UKismetMathLibrary::Vector_Distance(PlayerLocation, SoundEmitterLocation);
@@ -332,29 +332,43 @@ void AEGC_Character::OnFocusedSoundEmitterActive(float InEnvelopeData)
 	GEngine->AddOnScreenDebugMessage(11, 1, FColor::Green, FString::Printf(TEXT("Horizontal direction value: %f"), HorizontalDirectionValue));
 	GEngine->AddOnScreenDebugMessage(12, 1, FColor::Green, FString::Printf(TEXT("Vertical direction value: %f"), VerticalDirectionValue));
 
-	UAudioComponent* SoundEmitterAudioComp = Cast<UAudioComponent>(FocusedSoundEmitter->GetComponentByClass(UAudioComponent::StaticClass()));
-	if (!IsValid(SoundEmitterAudioComp))
+	USoundEmitterComponent* SoundEmitterComp = Cast<USoundEmitterComponent>(SoundEmitter->GetComponentByClass(USoundEmitterComponent::StaticClass()));
+	if (!IsValid(SoundEmitterComp))
 	{
-		UE_LOG(LogCharacter, Error, TEXT("AEGC_Character::OnFocusedSoundEmitterActive IsValid(SoundEmitterAudioComp) == false"));
+		UE_LOG(LogCharacter, Error, TEXT("AEGC_Character::OnFocusedSoundEmitterActive IsValid(SoundEmitterComp) == false"));
 		return;
 	}
 
-	float DistanceVolumeMultiplier = 1 - Distance / SoundEmitterAudioComp->Sound->MaxDistance;
+	float DistanceVolumeMultiplier = 1 - Distance / SoundEmitterComp->Sound->MaxDistance;
 
 	OnFocusedSoundEmitterEnvelopDataUpdated.ExecuteIfBound(DistanceVolumeMultiplier * InEnvelopeData, HorizontalDirectionValue, VerticalDirectionValue); 
 }
 
+/*
 void AEGC_Character::SetFocusedSoundEmitter(AActor* FoundSoundEmitter)
 {
+	if (IsValid(FocusedSoundEmitter))
+	{
+		USoundEmitterComponent* SoundEmitterComp = Cast<USoundEmitterComponent>(FocusedSoundEmitter->GetComponentByClass(USoundEmitterComponent::StaticClass()));
+		if (!IsValid(SoundEmitterComp))
+		{
+			UE_LOG(LogCharacter, Error, TEXT("AEGC_Character::OnFocusedSoundEmitterActive IsValid(SoundEmitterComp) == false"));
+			return;
+		}
+
+		SoundEmitterComp->OnAmplitudeEnvelopeDataUpdated.Clear();
+	}
+
 	FocusedSoundEmitter = FoundSoundEmitter;
-	OnFocusedSoundEmitterLost.Broadcast();
+	OnFocusedSoundEmitterChanged.Broadcast();
 	
 	if (!IsValid(FocusedSoundEmitter))
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("No Sound Emitter currently in focus!"));
-		//OnFocusedSoundEmitterLost.Broadcast();
+		return;
 	}
-}
+	
+}*/
 
 
 

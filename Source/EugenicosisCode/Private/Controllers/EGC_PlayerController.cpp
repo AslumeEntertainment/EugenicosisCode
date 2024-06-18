@@ -3,6 +3,7 @@
 
 #include "Controllers/EGC_PlayerController.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Gamemodes/EGC_GameModeBase.h"
 #include "UI/HUDs/InGameHUD.h"
 #include "Characters/EGC_Character.h"
@@ -17,8 +18,8 @@
 AEGC_PlayerController::AEGC_PlayerController()
 {
 	PerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("PerceptionComponent"));
-
 	Hearing = CreateDefaultSubobject<UAISenseConfig_Hearing>(TEXT("Hearing Config"));
+	
 	if (Hearing) 
 	{
 		Hearing->HearingRange = 40000;
@@ -35,8 +36,9 @@ AEGC_PlayerController::AEGC_PlayerController()
 
 void AEGC_PlayerController::OnHearingUpdated(TArray<AActor*> const& UpdatedActors)
 {
-	AActor* LatestInstigator = UpdatedActors.Last();
-	USoundEmitterComponent* SoundEmitterComponent = Cast<USoundEmitterComponent>(LatestInstigator->GetComponentByClass(USoundEmitterComponent::StaticClass()));
+	AActor* Actor = UpdatedActors[0];
+	
+	USoundEmitterComponent* SoundEmitterComponent = Cast<USoundEmitterComponent>(Actor->GetComponentByClass(USoundEmitterComponent::StaticClass()));
 	if (!IsValid(SoundEmitterComponent))
 	{
 		return;
@@ -49,18 +51,8 @@ void AEGC_PlayerController::OnHearingUpdated(TArray<AActor*> const& UpdatedActor
 		return;
 	}
 
-	PlayerPawn->SetFocusedSoundEmitter(LatestInstigator);
+	PlayerPawn->OnFocusedSoundEmitterChanged.Broadcast();
 	SoundEmitterComponent->OnAmplitudeEnvelopeDataUpdated.BindDynamic(PlayerPawn, &AEGC_Character::OnFocusedSoundEmitterActive);
-
-	if (LatestInstigator->ActorHasTag(FName("Big")))
-	{
-		GEngine->AddOnScreenDebugMessage(100, 5, FColor::Orange, TEXT("Notification sound is being detected!"));
-	}
-
-	if (LatestInstigator->ActorHasTag(FName("Chungus")))
-	{
-		GEngine->AddOnScreenDebugMessage(100, 5, FColor::Orange, TEXT("VineBoom sound is being detected!"));
-	}
 }
 
 void AEGC_PlayerController::SwitchInputMappingContext()

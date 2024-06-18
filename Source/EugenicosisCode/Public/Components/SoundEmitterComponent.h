@@ -6,7 +6,7 @@
 #include "Components/AudioComponent.h"
 #include "SoundEmitterComponent.generated.h"
 
-DECLARE_DYNAMIC_DELEGATE_OneParam(FAmplitudeEnvelopeDataSignature, float, EnvelopeData);
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FAmplitudeEnvelopeDataSignature, float, EnvelopeData, AActor*, SoundEmitter);
 
 UCLASS()
 class EUGENICOSISCODE_API USoundEmitterComponent : public UAudioComponent
