@@ -344,33 +344,6 @@ void AEGC_Character::OnFocusedSoundEmitterActive(float InEnvelopeData, AActor* S
 	OnFocusedSoundEmitterEnvelopDataUpdated.ExecuteIfBound(DistanceVolumeMultiplier * InEnvelopeData, HorizontalDirectionValue, VerticalDirectionValue); 
 }
 
-/*
-void AEGC_Character::SetFocusedSoundEmitter(AActor* FoundSoundEmitter)
-{
-	if (IsValid(FocusedSoundEmitter))
-	{
-		USoundEmitterComponent* SoundEmitterComp = Cast<USoundEmitterComponent>(FocusedSoundEmitter->GetComponentByClass(USoundEmitterComponent::StaticClass()));
-		if (!IsValid(SoundEmitterComp))
-		{
-			UE_LOG(LogCharacter, Error, TEXT("AEGC_Character::OnFocusedSoundEmitterActive IsValid(SoundEmitterComp) == false"));
-			return;
-		}
-
-		SoundEmitterComp->OnAmplitudeEnvelopeDataUpdated.Clear();
-	}
-
-	FocusedSoundEmitter = FoundSoundEmitter;
-	OnFocusedSoundEmitterChanged.Broadcast();
-	
-	if (!IsValid(FocusedSoundEmitter))
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("No Sound Emitter currently in focus!"));
-		return;
-	}
-	
-}*/
-
-
 
 
 

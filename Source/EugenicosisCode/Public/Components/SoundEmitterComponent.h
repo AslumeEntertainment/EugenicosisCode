@@ -23,4 +23,7 @@ protected:
 	UFUNCTION()
 	void OnSoundPlayed(const USoundWave* SoundWave, const float PlaybackPercent);
 
+	UFUNCTION()
+	void OnSoundEnded();
+
 };

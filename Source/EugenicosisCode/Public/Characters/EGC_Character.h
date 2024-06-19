@@ -35,7 +35,6 @@ private:
 	FTimerHandle GenericTimerHandle;
 
 	UObject* FocusedInteractableObject;
-	//AActor* FocusedSoundEmitter;
 
 	double CameraHeight;
 	double InteractionBoundsSlope;
@@ -156,8 +155,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void OnFocusedSoundEmitterActive(float InEnvelopeData, AActor* SoundEmitter);
-
-	//void SetFocusedSoundEmitter(AActor* FoundSoundEmitter);
 
 	FEnergyBlurSignature OnEnergyRateChanged;
 	FVisualSoundSignature OnFocusedSoundEmitterEnvelopDataUpdated;

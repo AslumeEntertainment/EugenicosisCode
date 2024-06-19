@@ -25,6 +25,8 @@ private:
 	UFUNCTION()
 	void OnHearingUpdated(TArray<AActor*> const& UpdatedActors);
 
+	AActor* GetNearestSoundEmitter(TArray<AActor*> UpdatedActors);
+
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)

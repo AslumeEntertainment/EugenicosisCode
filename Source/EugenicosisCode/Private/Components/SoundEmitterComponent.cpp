@@ -7,6 +7,7 @@
 USoundEmitterComponent::USoundEmitterComponent()
 {
 	OnAudioPlaybackPercent.AddDynamic(this, &USoundEmitterComponent::OnSoundPlayed);
+	OnAudioFinished.AddDynamic(this, &USoundEmitterComponent::OnSoundEnded);
 }
 
 void USoundEmitterComponent::OnSoundPlayed(const USoundWave* SoundWave, const float PlaybackPercent)
@@ -19,6 +20,12 @@ void USoundEmitterComponent::OnSoundPlayed(const USoundWave* SoundWave, const fl
 		OnAmplitudeEnvelopeDataUpdated.ExecuteIfBound(OutEnvelopeData, GetOwner());
 	}
 
+	return;
+}
+
+void USoundEmitterComponent::OnSoundEnded()
+{
+	OnAmplitudeEnvelopeDataUpdated.Clear();
 	return;
 }
 

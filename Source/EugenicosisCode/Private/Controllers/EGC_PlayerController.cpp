@@ -26,7 +26,7 @@ AEGC_PlayerController::AEGC_PlayerController()
 		Hearing->DetectionByAffiliation.bDetectEnemies = true;
 		Hearing->DetectionByAffiliation.bDetectFriendlies = true;
 		Hearing->DetectionByAffiliation.bDetectNeutrals = true;
-		Hearing->SetMaxAge(5);
+		Hearing->SetMaxAge(1);
 
 		PerceptionComponent->SetDominantSense(*Hearing->GetSenseImplementation());
 		PerceptionComponent->OnPerceptionUpdated.AddDynamic(this, &AEGC_PlayerController::OnHearingUpdated);
@@ -36,8 +36,12 @@ AEGC_PlayerController::AEGC_PlayerController()
 
 void AEGC_PlayerController::OnHearingUpdated(TArray<AActor*> const& UpdatedActors)
 {
-	AActor* Actor = UpdatedActors[0];
-	
+	AActor* Actor = GetNearestSoundEmitter(UpdatedActors);
+	if (!IsValid(Actor))
+	{
+		return;
+	}
+
 	USoundEmitterComponent* SoundEmitterComponent = Cast<USoundEmitterComponent>(Actor->GetComponentByClass(USoundEmitterComponent::StaticClass()));
 	if (!IsValid(SoundEmitterComponent))
 	{
@@ -53,6 +57,39 @@ void AEGC_PlayerController::OnHearingUpdated(TArray<AActor*> const& UpdatedActor
 
 	PlayerPawn->OnFocusedSoundEmitterChanged.Broadcast();
 	SoundEmitterComponent->OnAmplitudeEnvelopeDataUpdated.BindDynamic(PlayerPawn, &AEGC_Character::OnFocusedSoundEmitterActive);
+}
+
+AActor* AEGC_PlayerController::GetNearestSoundEmitter(TArray<AActor*> UpdatedActors)
+{
+	AActor* NearestSoundEmitter = nullptr;
+	USoundEmitterComponent* SoundEmitterComponent;
+
+	FVector PlayerPosition = GetPawn()->GetActorLocation();
+	float ShortestDistance = UKismetMathLibrary::Vector_Distance(PlayerPosition, UpdatedActors[0]->GetActorLocation());
+
+	SoundEmitterComponent = Cast<USoundEmitterComponent>(UpdatedActors[0]->GetComponentByClass(USoundEmitterComponent::StaticClass()));
+	if (IsValid(SoundEmitterComponent))
+	{
+		NearestSoundEmitter = UpdatedActors[0];
+	}
+
+	for (AActor* Actor : UpdatedActors)
+	{
+		SoundEmitterComponent = Cast<USoundEmitterComponent>(Actor->GetComponentByClass(USoundEmitterComponent::StaticClass()));
+		if (!IsValid(SoundEmitterComponent))
+		{
+			continue;
+		}
+
+		float CurrentDistance = UKismetMathLibrary::Vector_Distance(PlayerPosition, Actor->GetActorLocation());
+		if (CurrentDistance < ShortestDistance)
+		{
+			ShortestDistance = CurrentDistance;
+			NearestSoundEmitter = Actor;
+		}
+	}
+
+	return NearestSoundEmitter;
 }
 
 void AEGC_PlayerController::SwitchInputMappingContext()
